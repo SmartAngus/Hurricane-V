@@ -1,7 +1,12 @@
 import React from "react";
-import ReactEcharts from "echarts-for-react";
+// import ReactEcharts from "echarts-for-react";
 import "./style.scss"
-
+// 分开引用减少代码量
+import ReactEchartsCore from 'echarts-for-react/lib/core';
+import echarts from 'echarts/lib/echarts';
+import 'echarts/lib/component/tooltip';
+import 'echarts/lib/component/title';
+import 'echarts/lib/chart/line';
 
 export default class CapsuleChart extends React.PureComponent {
     getOption = () => {
@@ -64,14 +69,11 @@ export default class CapsuleChart extends React.PureComponent {
         };
     };
     render() {
-        let code = "<ReactEcharts \n" +
-            "  option={this.getOption()} \n" +
-            "  style={{height: '350px', width: '100%'}}  \n" +
-            "  className='react_for_echarts' />";
         return (
             <div className='examples'>
                 <div className='parent'>
-                    <ReactEcharts
+                    <ReactEchartsCore
+                        echarts={echarts}
                         option={this.getOption()}
                         style={{height: '350px', width: '100%'}}
                         className='react_for_echarts' />

@@ -266,6 +266,10 @@ const SELF_COMPONENT: Node[] = [
                 <div className="controls-title">仪表盘</div>
             </div>
         ),
+        chart:{
+            type: 'pie',
+            component: 'pieChart',
+        },
         disabled: false
     },
     /** 饼图 */
@@ -291,7 +295,7 @@ const SELF_COMPONENT: Node[] = [
         ),
         disabled: false,
         chart:{
-            type: 'pie',
+            type: 'line',
             component: 'capsuleChart',
         }
     }

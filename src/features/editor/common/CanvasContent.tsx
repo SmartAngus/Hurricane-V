@@ -34,7 +34,7 @@ import {
 import { calcLinkPosition } from "../utils/calc";
 import { pointInPoly, checkNodeIsOverGroup } from "../utils/layout";
 import { exitFullscreen, launchFullscreen, isFull, getOffset } from "./utils";
-import { CanvasContentProps, CanvasContentState } from '../constants/cavasContent'
+import { CanvasContentProps, CanvasContentState } from '../constants/cavasTypes'
 
 const defaultCavasProps={
   width: 1366,
