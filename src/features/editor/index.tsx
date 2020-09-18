@@ -61,7 +61,8 @@ export default function EditorDemo(props) {
         handleSaveData,
         groups,
         setGroups,
-        updateGroups
+        updateGroups,
+        editorLocalData
     } = useEditorStore();
 
 
@@ -192,6 +193,19 @@ export default function EditorDemo(props) {
         setDragSelectable(!dragSelectable);
     };
 
+
+
+    // 预览
+    const handlePreview = () => {
+        console.log("preview");
+            var a = document.createElement("a");
+            a.setAttribute("href", '/editor/preview');
+            a.setAttribute("target", "_blank");
+            a.setAttribute("id", "camnpr");
+            document.body.appendChild(a);
+            a.click();
+    }
+
     /** 处理DragSelector 关闭事件 */
     const onDragSelectorClose = (selectorProps: ShapeProps) => {
         // 计算区域内的位置有多少节点需要高亮,其实计算的是一个点是否在矩形内
@@ -245,6 +259,8 @@ export default function EditorDemo(props) {
     /** 保存 */
     const handleSave = async () => {
         const data = await handleSaveData();
+
+        console.log(editorLocalData);
         if (data) {
             message.success("保存成功");
         } else {
@@ -419,9 +435,10 @@ export default function EditorDemo(props) {
                     "paste",
                     "delete",
                     "dragSelect",
-                    // "layout",
+                    "layout",
                     "adapt",
-                    "group"
+                    "group",
+                    "preview",
                 ]}
                 onCopy={handleCopy}
                 onPaste={handlePaste}
@@ -432,6 +449,7 @@ export default function EditorDemo(props) {
                 onLayout={canvasInstance && canvasInstance.layout}
                 onAdapt={canvasInstance && canvasInstance.handleShowAll}
                 onGroup={handleGroup}
+                onPreview={handlePreview}
             />
         </div>
     );

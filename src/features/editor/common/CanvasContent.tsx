@@ -34,72 +34,11 @@ import {
 import { calcLinkPosition } from "../utils/calc";
 import { pointInPoly, checkNodeIsOverGroup } from "../utils/layout";
 import { exitFullscreen, launchFullscreen, isFull, getOffset } from "./utils";
+import { CanvasContentProps, CanvasContentState } from '../constants/cavasContent'
 
-class CanvasContentProps {
-  ref: any;
-  nodes: Node[];
-  links: Link[];
-  groups: Group[];
-  setNodes: (nodes: Node[]) => void;
-  setLinks: (links: Link[]) => void;
-  setGroups?: (groups: Group[]) => void;
-  selectedLinks: string[];
-  setSelectedLinks: (links: string[]) => void;
-  selectedNodes: string[];
-  setSelectedNodes: (links: string[]) => void;
-  /** 当前拖拽的节点 */
-  dragNode: Node;
-  updateNodes: (node: Node) => void;
-  updateLinks: (link: Link) => void;
-  updateGroups?: (nodes: Node[], deleteGroupId?: string) => void;
-  deleteNodes: (selectedNodes: string[]) => void;
-  deleteLinks: (selectedLinks: string[]) => void;
-  copiedNodes: Node[];
-  setCopiedNodes: (nodes: Node[]) => void;
-  currTrans: ZoomTransform;
-  setCurrTrans: (transform: ZoomTransform) => void;
-  /** 是否被按住 */
-  isKeyPressing: boolean;
-}
-
-class CanvasContentState {
-  /** 拖拽节点 */
-  isDraggingNode: boolean;
-  /** 拖拽边 */
-  isDraggingLink: boolean;
-  /** 拖拽组 */
-  isDraggingGroup: boolean;
-  /** 拖拽组 */
-  dragGroup: Group;
-  /** 拖拽节点 */
-  dragNode: Node;
-  /** 鼠标位置在拖动节点的偏移量 */
-  dragNodeOffset: any;
-  /** 鼠标位置在拖动组的偏移量 */
-  dragGroupOffset: any;
-  /** 移动边 */
-  dragLink: {
-    /** 源起节点id */
-    originId: string;
-    /** 源起节点 */
-    originX: number;
-    originY: number;
-    /** 鼠标移动节点 */
-    x: number;
-    y: number;
-    /** 来源边位置 */
-  };
-  sourcePos: string;
-  /** 对话框展示标志位 */
-  menuDisplay: boolean;
-  /** 对话框的位置信息 */
-  menuPos: MenuPos;
-  /** 画布的放大倍率 */
-  screenScale: number;
-  /** 当前鼠标悬浮的节点 */
-  currentHoverNode: string;
-  /** 删除框 */
-  deleteVisible: boolean;
+const defaultCavasProps={
+  width: 1366,
+  height:768
 }
 
 export default class CanvasContent extends React.Component<
@@ -640,6 +579,7 @@ export default class CanvasContent extends React.Component<
   };
 
   getTransformInfo = (currTrans: ZoomTransform) => {
+    console.log(currTrans)
     this.props.setCurrTrans(currTrans);
   };
 
@@ -751,6 +691,7 @@ export default class CanvasContent extends React.Component<
     const x = this.screenWidth / 2 - (minX + maxX) / 2;
     const y = this.screenHeight / 2 - (minY + maxY) / 2;
     const transform = zoomIdentity.translate(x, y).scale(1);
+    console.log("transform=",transform)
     // 适应画布最大100%，保证在节点少的情况下不发生放大
     const scale = Math.min(
       this.screenWidth / componentWidth,
@@ -1009,6 +950,7 @@ export default class CanvasContent extends React.Component<
     const { deleteVisible, menuPos } = this.state;
     return (
       <div className="canvas-container-content" ref={this.container}>
+        <svg className="svg-caves"></svg>
         <ReScreen
           type="DOM"
           getScreenHandler={this.getScreenHandler}
@@ -1018,6 +960,8 @@ export default class CanvasContent extends React.Component<
           mapPosition="RT-IN"
           mapWidth={200}
           mapHeight={300}
+          height={defaultCavasProps.height}
+          width={defaultCavasProps.width}
           mapRectStyle={{
             stroke: "#468CFF",
             fill: "transparent",

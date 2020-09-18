@@ -30,7 +30,8 @@ export type ToolbarType =
   | "dragSelect"
   | "layout"
   | "adapt"
-  | "group";
+  | "group"
+  | "preview";
 
 export class ToolbarProps {
   /** 适应画布 */
@@ -63,6 +64,8 @@ export class ToolbarProps {
 
   onGroup?: () => void;
 
+  onPreview?: () => void;
+
   /** 处理全屏 */
   // handleFullScreen?: () => void;
   /** Toolbar选项 */
@@ -86,6 +89,7 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
     onLayout,
     onAdapt,
     onGroup,
+    onPreview,
   } = props;
   const scale = String(Math.round(screenScale));
 
@@ -119,6 +123,8 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
   const isLayout = items.includes("layout");
 
   const isGroup = items.includes("group");
+
+  const isPreview = items.includes("preview")
 
   /** 当前是否是全屏状态 */
 
@@ -255,6 +261,14 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
               <Icon type="block" onClick={onGroup} />
             </Tooltip>
           </div>
+        )}
+
+        {isPreview && (
+            <div className="toolbar-btn">
+              <Tooltip title="预览">
+                <Icon type="caret-right" onClick={onPreview} />
+              </Tooltip>
+            </div>
         )}
       </>
     );
