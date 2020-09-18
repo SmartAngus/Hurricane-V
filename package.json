@@ -14,9 +14,12 @@
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
+    "@types/react-router-config": "^5.0.1",
+    "@types/react-router-dom": "^5.1.5",
     "antd": "3.26.12",
     "classnames": "2.2.2",
     "d3-zoom": "^1.8.3",
+    "dagre": "^0.8.5",
     "echarts": "^4.9.0",
     "echarts-for-react": "^2.0.16",
     "lodash": "4.17.15",
@@ -26,7 +29,6 @@
     "react-redux": "^7.2.1",
     "react-router-config": "^5.1.1",
     "react-scripts": "3.4.3",
-    "regraph-next": "^0.0.2-beta1",
     "typescript": "^3.8.3",
     "uuid": "^3.3.2"
   },
@@ -67,6 +69,14 @@
     "@types/lodash": "^4.14.149",
     "@types/uuid": "^7.0.0",
     "d3-format": "^1.4.3",
-    "react-router-dom": "^5.1.2"
+    "react-router-dom": "^5.1.2",
+    "raw-js-loader": "^1.4.0",
+    "raw-loader": "^0.5.1",
+    "rc-animate": "^2.4.4",
+    "rc-banner-anim": "^1.0.1",
+    "rc-drawer": "^1.5.3",
+    "rc-queue-anim": "^1.5.0",
+    "rc-scroll-anim": "^2.5.1",
+    "rc-tween-one": "^1.7.3"
   }
 }

@@ -7,20 +7,20 @@ import EditorPreview from './features/editor/preview'
 
 
 
-const Root = ({ route }) => (
+const Root = ({ route }:any) => (
     <>
         {/* child routes won't render without this */}
         {renderRoutes(route.routes)}
     </>
 );
 
-const Home = ({ route }) => (
+const Home = ({ route }:any) => (
     <div>
         <h2>Home</h2>
     </div>
 );
 
-const Child = ({ route }) => (
+const Child = ({ route }:any) => (
     <div>
         <h2>Child</h2>
         {/* child routes won't render without this */}
@@ -28,13 +28,13 @@ const Child = ({ route }) => (
     </div>
 );
 
-const GrandChild = ({ someProp }) => (
+const GrandChild = ({ someProp }:{someProp:any}) => (
     <div>
         <h3>Grand Child</h3>
         <div>{someProp}</div>
     </div>
 );
-const routes = [
+const routes:any = [
     {
         component: Root,
         routes: [

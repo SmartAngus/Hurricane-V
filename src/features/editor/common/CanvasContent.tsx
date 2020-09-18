@@ -5,7 +5,7 @@
 import * as React from "react";
 import * as _ from "lodash";
 import * as uuid from "uuid";
-import { ReScreen, BaseLayout } from "regraph-next";
+import { ReScreen, BaseLayout } from "../../../regraph";
 import { ZoomTransform, zoomIdentity } from "d3-zoom";
 import { Menu } from "antd";
 import { EditorNode } from "./EditorNode";
@@ -35,6 +35,7 @@ import { calcLinkPosition } from "../utils/calc";
 import { pointInPoly, checkNodeIsOverGroup } from "../utils/layout";
 import { exitFullscreen, launchFullscreen, isFull, getOffset } from "./utils";
 import { CanvasContentProps, CanvasContentState } from '../constants/cavasTypes'
+import {Point} from "../utils/types";
 
 const defaultCavasProps={
   width: 1366,
@@ -47,13 +48,14 @@ export default class CanvasContent extends React.Component<
 > {
   nodesContainerRef: any;
   container: any;
-  screenWidth: number;
-  screenHeight: number;
+  screenWidth?: number;
+  screenHeight?: number;
 
-  handleApplyTransform: (transform: ZoomTransform) => void;
-  handleResize: (isLarge: boolean) => void;
-  handleAdapt: () => void;
-  handleResizeTo: (scale: number, P0?: [number, number]) => void;
+  handleApplyTransform?: (transform: ZoomTransform) => void;
+  handleResize?: (isLarge: boolean) => void;
+  handleAdapt?: () => void;
+  handleResizeTo?: (scale: number, P0?: [number, number]) => void;
+  handleLocation?: (point:Point) => void;
 
   constructor(props) {
     super(props);
@@ -198,6 +200,7 @@ export default class CanvasContent extends React.Component<
   onNodesContainerMouseDown = (event: any) => {
     event.stopPropagation();
     const { nodes, groups } = this.props;
+    // 如果画布中有节点
     if (nodes && nodes.length > 0) {
       const currentNode = _.find(nodes, c => {
         if (c.ref && c.ref.current) {
@@ -208,7 +211,7 @@ export default class CanvasContent extends React.Component<
 
       const type = event.target.dataset && event.target.dataset.type;
       const position = event.target.dataset && event.target.dataset.position;
-
+      // 如果当前选中的是节点
       if (currentNode) {
         if (type === "edge" && position) {
           /** 拖拽连线 */
@@ -577,7 +580,7 @@ export default class CanvasContent extends React.Component<
       dragGroupOffset: null
     });
   };
-
+  // 获得画布缩放移动信息
   getTransformInfo = (currTrans: ZoomTransform) => {
     console.log(currTrans)
     this.props.setCurrTrans(currTrans);
@@ -590,6 +593,7 @@ export default class CanvasContent extends React.Component<
     this.handleAdapt = handleMap.handleAdapt;
     this.screenWidth = handleMap.screenWidth;
     this.screenHeight = handleMap.screenHeight;
+    this.handleLocation = handleMap.handleLocation
   };
 
   onDrag(event, name: string) {}
@@ -954,7 +958,7 @@ export default class CanvasContent extends React.Component<
         <ReScreen
           type="DOM"
           getScreenHandler={this.getScreenHandler}
-          needMinimap={true}
+          needMinimap={false}
           needRefresh={true}
           zoomEnabled={false}
           mapPosition="RT-IN"
