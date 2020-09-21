@@ -1,7 +1,7 @@
 /**  确保svg内部由g包裹，这样才能实现元素的平移缩放 */
 export function isValidSVG(parentNode: any) {
   if (!parentNode) {
-    console.log("svg元素不存在");
+    // // console.log("svg元素不存在");
     return false;
   }
   const node = parentNode.node();

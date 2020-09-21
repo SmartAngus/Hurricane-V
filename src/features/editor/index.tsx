@@ -1,27 +1,4 @@
-/*
-import React from "react";
-import { ReScreen } from "regraph-next"
-
-function EditorDemo() {
-    return (
-        <div className='editor-demo'>
-            <ReScreen
-                height = {500}
-                width = "100%"
-                mapWidth = {200}
-                mapHeight = {200}
-                mapPosition = "RT-IN" >
-                <svg>
-                    <g>
-                        <circle cx={0} cy={0} r={500} fill="yellow" />
-                        <circle cx={0} cy={0} r={250} fill="red" />
-                    </g>
-                </svg>
-            </ReScreen>
-        </div>
-    )
-}
-export default EditorDemo;*/
+/** 渲染右侧配置区 */
 import * as React from "react";
 import * as _ from "lodash";
 import * as uuid from "uuid";
@@ -32,6 +9,8 @@ import { useEditorStore, useKeyPress, useEventListener } from "./hooks";
 import { ShapeProps } from "./utils/useDragSelect";
 import { pointInPoly } from "./utils/layout";
 import { GROUP_PADDING, Node, Group } from "./constants/defines";
+import RenderPropertySidebar from "./common/RenderPropertySidebar";
+
 
 import "./index.scss";
 
@@ -75,6 +54,7 @@ export default function EditorDemo(props) {
     } as any);
 
     const canvasInstance = canvasRef.current;
+
 
     /** 删除组件 */
     const handleDeleteNodes = (ids: string[]) => {
@@ -197,7 +177,7 @@ export default function EditorDemo(props) {
 
     // 预览
     const handlePreview = () => {
-        console.log("preview");
+        // // console.log("preview");
             var a = document.createElement("a");
             a.setAttribute("href", '/editor/preview');
             a.setAttribute("target", "_blank");
@@ -260,7 +240,7 @@ export default function EditorDemo(props) {
     const handleSave = async () => {
         const data = await handleSaveData();
 
-        console.log(editorLocalData);
+        // // console.log(editorLocalData);
         if (data) {
             message.success("保存成功");
         } else {
@@ -414,7 +394,25 @@ export default function EditorDemo(props) {
         },
         canvasInstance
     );
-
+    // // 重新定义handleResizeTo
+    // const handleResizeTo = (scale) => {
+    //     // // console.log(canvasInstance.container)
+    //     //// // console.log(scale)
+    //     canvasInstance.container.current.style.transform = `translate(500px, 400px) scale(${scale})`
+    //     getSvgContainerSize()
+    // }
+    // // 画布的放大缩小handleScreenResizeTo
+    // const handleScreenResizeTo = (scale) => {
+    //     // // console.log(canvasInstance.container)
+    //     // // console.log(scale)
+    //     canvasInstance.container.current.style.transform = `translate(500px, 400px) scale(${scale})`
+    //     getSvgContainerSize()
+    // }
+    // 获取svgContainer的大小
+    const getSvgContainerSize = () => {
+        let svgRect = canvasInstance.svgContainer.current.getBoundingClientRect()
+        // // console.log(svgRect)
+    }
     /** 操作区 */
     const renderOperation = (
         <div>
@@ -423,6 +421,7 @@ export default function EditorDemo(props) {
                 screenScale={screenScale}
                 changeScreenScale={changeScreenScale}
                 handleResizeTo={canvasInstance && canvasInstance.handleResizeTo}
+                handleScreenResizeTo={canvasInstance && canvasInstance.handleScreenResizeTo}
                 items={[
                     "save",
                     "fullscreen",
@@ -501,17 +500,13 @@ export default function EditorDemo(props) {
             />
         </div>
     );
-
-    /** 渲染配置区 */
-    const renderProperty = <div className="editor-property"></div>;
-
     return (
         <div className="editor-demo" ref={screenRef}>
             <div className="editor-operation">{renderOperation}</div>
             <div className="editor-container">
                 {renderNodePanel}
                 {renderCanvas}
-                {renderProperty}
+                <RenderPropertySidebar selectedNodes={selectedNodes} nodes={nodes}/>
             </div>
         </div>
     );

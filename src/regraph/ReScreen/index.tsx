@@ -20,6 +20,7 @@ export class ButtonsProps {
   handleResetStatus: () => void;
   handleResize: (isLarge: boolean) => void;
   handleResizeTo: (scale: number) => void;
+  handleScreenResizeTo: (scale: number) => void;
   handleFocusTarget: (evt: any, focusEnabled: number) => void;
   handleApplyTransform: (transform: ZoomTransform) => void;
   handleLocation: (point: Point) => void;
@@ -48,7 +49,7 @@ class Props {
   minZoom?: number;
   maxZoom?: number;
   /** 拖拽方向的锁定，默认为ALL */
-  dragDirection?: 'ALL' | 'HOR' | 'VER';
+  dragDirection?: 'ALL' | 'HOR' | 'VER' | 'NONE';
   /** 是否需要缩略图，默认为true */
   needMinimap?: boolean;
   /** 缩略图是否启动鼠标滚动缩放，默认为 false */
@@ -96,6 +97,8 @@ class Props {
   onDrop?: (event: React.DragEvent<HTMLDivElement>) => void = () => {};
   /** 是否支持拖拽 */
   draggable?: boolean;
+  /**将svgContainer传进来，计算画布区域偏移的位置*/
+  svgContainer?:any;
 }
 
 class State {
@@ -161,10 +164,13 @@ export default class ReScreen extends React.Component<Props, State> {
     showMiniMap: false
   };
   rectRef: any;
+  screenRef: any;
+
 
   constructor(props: Props) {
     super(props);
     this.rectRef = React.createRef();
+    this.screenRef = React.createRef();
   }
 
   componentDidMount() {
@@ -212,6 +218,8 @@ export default class ReScreen extends React.Component<Props, State> {
   init() {
     this.getScreenSize();
     this.getScreenToMapTransform();
+    // 初始化设置编辑窗口居中，设置滚动条位置
+    this.handleScreenResizeTo(1,[this.screenWidth/2,this.screenHeight/2-100])
   }
 
   initEvent() {
@@ -233,6 +241,7 @@ export default class ReScreen extends React.Component<Props, State> {
         handleResetStatus: this.handleResetStatus,
         handleResize: this.handleResize,
         handleResizeTo: this.handleResizeTo,
+        handleScreenResizeTo: this.handleScreenResizeTo,
         handleFocusTarget: this.handleFocusTarget,
         handleApplyTransform: this.handleApplyTransform,
         handleAdapt: this.handleAdapt,
@@ -415,7 +424,8 @@ export default class ReScreen extends React.Component<Props, State> {
     } else {
       finalTransform = transform;
     }
-
+    // 进制拖砖
+    // if(this.props.dragDirection === 'NONE') return
     // 画布的最终变化效果是自身变化加上缩略图变化的效果
     const { onScreenChange } = this.props;
     this.applyTransform(finalTransform);
@@ -563,15 +573,71 @@ export default class ReScreen extends React.Component<Props, State> {
     /** 画布中心点对应到变化之前的点坐标 */
     const P1 = this.transform.invert(P0);
 
-    this.screen.call(
-      this.screenZoom.transform,
-      zoomIdentity
-        /** 平移量为以原点为中心时的平移量减去最终要以的中心点 */
-        .translate(P0[0] - P1[0] * screenScale, P0[1] - P1[1] * screenScale)
-        .scale(screenScale)
-    );
+    // this.screen.call(
+    //   this.screenZoom.transform,
+    //   zoomIdentity
+    //     /** 平移量为以原点为中心时的平移量减去最终要以的中心点 */
+    //     .translate(P0[0] - P1[0] * screenScale, P0[1] - P1[1] * screenScale)
+    //     .scale(screenScale)
+    // );
     this.minimap && this.minimap.call(this.mapZoom.transform, zoomIdentity);
   };
+
+  // 以screen为缩放对象
+  handleScreenResizeTo = (newScale: number, P0?: [number, number]) => {
+    // mm
+    const screenScale = newScale * this.minimapTransform.k;
+    console.log("screenScale,",screenScale)
+
+    /** 如果未指定缩放中心，则默认为画布中心点 */
+    if (!P0) {
+      P0 = [this.screenWidth / 2, this.screenHeight / 2];
+    }
+    console.log("screenDOM,",P0)
+    /** 画布中心点对应到变化之前的点坐标 */
+    const P1 = this.transform.invert(P0);
+    console.log("screenDOM,",this.screenDOM)
+    // 缩放class类为screen的div
+    // this.screenContainer.call(
+    //     this.screenZoom.transform,
+    //     zoomIdentity
+    //         /** 平移量为以原点为中心时的平移量减去最终要以的中心点 */
+    //         .translate(P0[0] - P1[0] * screenScale, P0[1] - P1[1] * screenScale)
+    //         .scale(screenScale)
+    // );
+    const svgRect = this.getSvgContainerSize()
+    const endX = Math.round(svgRect.width/2)-P1[0]
+    const endY = Math.round(svgRect.height/2)-P1[1]
+
+    const trans = zoomIdentity.translate(P0[0] - P1[0] * screenScale, P0[1] - P1[1] * screenScale).scale(screenScale);
+    this.screenRef.current.style.transform = `translate(${trans.x+endX}px, ${trans.y+endY}px) scale(${trans.k})`
+    this.minimap && this.minimap.call(this.mapZoom.transform, zoomIdentity);
+    const info = this.getEditorCanvasInfo();
+    // 在有滚动条的情况下将画布居中，需要将滚动条移动到相印的位置
+    info.editorCanvas.scrollTop = endY+trans.y
+    info.editorCanvas.scrollLeft= endX+trans.x
+
+
+  };
+
+
+  // 获取svgContainer的大小
+  getSvgContainerSize = () => {
+    const {svgContainer} = this.props;
+    let svgRect = svgContainer.current.getBoundingClientRect()
+    return svgRect;
+  }
+  // 获取editor-cavas的信息
+  getEditorCanvasInfo = () => {
+    const editorCanvas = document.querySelector(".editor-canvas");
+    return {
+      editorCanvas: editorCanvas,
+      top: editorCanvas.scrollTop,
+      left:editorCanvas.scrollLeft,
+      width:editorCanvas.scrollWidth,
+      height:editorCanvas.scrollHeight
+    }
+  }
 
   /** 图上坐标居中，执行动画 */
   handleLocation = (point: Point) => {
@@ -761,7 +827,7 @@ export default class ReScreen extends React.Component<Props, State> {
       </div>
     );
   }
-
+  // 渲染画布内容
   renderScreenContent() {
     const { type, screenHeight } = this.props;
     const width = this.screenWidth || '100%';
@@ -780,7 +846,7 @@ export default class ReScreen extends React.Component<Props, State> {
           if (isValidSVG(this.screen)) {
             this.screenContent = d3Select.select(ele && ele.firstChild);
           } else {
-            return console.log('请确保svg内部用g包裹起来！');
+            return // // console.log('请确保svg内部用g包裹起来！');
           }
         },
         width,
@@ -829,7 +895,7 @@ export default class ReScreen extends React.Component<Props, State> {
         onContextMenu={this.props.onContextMenu}
         onDrop={this.props.onDrop}
         onDragOver={this.props.onDragOver}>
-        <div className={className}>
+        <div className={className} ref={this.screenRef}>
           {/* 绘制画布内容 */}
           {this.renderScreenContent()}
           {/* 绘制按钮控制 */}

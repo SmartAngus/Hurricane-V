@@ -40,6 +40,9 @@ export class ToolbarProps {
   /** 缩放 */
   handleResizeTo?: (scale: number) => void;
 
+  /** 以screen缩放 */
+  handleScreenResizeTo?: (scale: number) => void;
+
   /** 改变屏幕缩放大小 */
   changeScreenScale?: (scale: number) => void;
 
@@ -79,6 +82,7 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
     screenScale,
     changeScreenScale,
     handleResizeTo,
+    handleScreenResizeTo,
     items,
     onShear,
     onCopy,
@@ -144,9 +148,12 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
         value = MIN_SCALE;
       }
     }
-    handleResizeTo(value / 100);
-    changeScreenScale(value);
+     handleResizeTo(value / 100);
+     handleScreenResizeTo(value / 100);
+     changeScreenScale(value);
+    // // console.log("handleResize...",value);
   };
+
 
   /** 处理全屏事件 */
   const handleFullScreen = () => {
@@ -169,104 +176,115 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
       <>
         {isZoom && (
           <>
-            <div className="toolbar-btn">
-              <Tooltip title="缩小">
-                <Icon type="zoom-in" onClick={handleResize.bind(null, true)} />
+            <div className="toolbar-btn" onClick={handleResize.bind(null, true)}>
+              <Tooltip title="放大">
+                <Icon type="zoom-in" />
+                <span className="toolbar-btn-text">放大</span>
               </Tooltip>
             </div>
-            <div className="toolbar-btn">
-              <Tooltip title="放大">
-                <Icon
-                  type="zoom-out"
-                  onClick={handleResize.bind(null, false)}
-                />
+            <div className="toolbar-btn" onClick={handleResize.bind(null, false)}>
+              <Tooltip title="缩小">
+                <Icon type="zoom-out"/>
+                <span className="toolbar-btn-text">缩小</span>
               </Tooltip>
             </div>
           </>
         )}
+        <div className="btn-separator"></div>
         {isSave && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn"  onClick={onSave} >
             <Tooltip title="保存">
-              <Icon type="save" onClick={onSave} />
+              <Icon type="save"/>
+              <span className="toolbar-btn-text">保存</span>
             </Tooltip>
           </div>
         )}
 
         {isFullScreen && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={handleFullScreen}>
             <Tooltip title="全屏">
-              <Icon type={fullScreenClassName} onClick={handleFullScreen} />
+              <Icon type={fullScreenClassName} />
+              <span className="toolbar-btn-text">全屏</span>
             </Tooltip>
           </div>
         )}
 
         {isShear && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={onShear} >
             <Tooltip title="剪切">
-              <Icon type="scissor" onClick={onShear} />
+              <Icon type="scissor"/>
+              <span className="toolbar-btn-text">剪切</span>
             </Tooltip>
           </div>
         )}
 
         {isCopy && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn toolbar-btn-disabled" onClick={onCopy} >
             <Tooltip title="复制">
-              <Icon type="copy" onClick={onCopy} />
+              <Icon type="copy" />
+              <span className="toolbar-btn-text">复制</span>
             </Tooltip>
           </div>
         )}
 
         {isPaste && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={onPaste}>
             <Tooltip title="粘贴">
-              <Icon type="snippets" onClick={onPaste} />
+              <Icon type="snippets" />
+              <span className="toolbar-btn-text">粘贴</span>
             </Tooltip>
           </div>
         )}
         {isDelete && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={onDelete} >
             <Tooltip title="删除">
-              <Icon type="delete" onClick={onDelete} />
+              <Icon type="delete" />
+              <span className="toolbar-btn-text">删除</span>
             </Tooltip>
           </div>
         )}
 
         {isDragSelect && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={onDragSelect} >
             <Tooltip title="圈选">
-              <Icon type="gateway" onClick={onDragSelect} />
+              <Icon type="gateway"/>
+              <span className="toolbar-btn-text">圈选</span>
             </Tooltip>
           </div>
         )}
 
         {isAdapt && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={onAdapt} >
             <Tooltip title="适应画布">
-              <Icon type="border-outer" onClick={onAdapt} />
+              <Icon type="border-outer"/>
+              <span className="toolbar-btn-text">适应画布</span>
             </Tooltip>
           </div>
         )}
 
         {isLayout && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={onLayout} >
             <Tooltip title="格式化">
-              <Icon type="layout" onClick={onLayout} />
+              <Icon type="layout"/>
+              <span className="toolbar-btn-text">格式化</span>
             </Tooltip>
           </div>
         )}
 
         {isGroup && (
-          <div className="toolbar-btn">
+          <div className="toolbar-btn" onClick={onGroup} >
             <Tooltip title="成组">
-              <Icon type="block" onClick={onGroup} />
+              <Icon type="block"/>
+              <span className="toolbar-btn-text">成组</span>
             </Tooltip>
           </div>
         )}
 
         {isPreview && (
-            <div className="toolbar-btn">
+            <div className="toolbar-btn" onClick={onPreview} >
               <Tooltip title="预览">
-                <Icon type="caret-right" onClick={onPreview} />
+                <Icon type="caret-right"/>
+                <span className="toolbar-btn-text">预览</span>
               </Tooltip>
             </div>
         )}

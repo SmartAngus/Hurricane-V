@@ -37,10 +37,7 @@ import { exitFullscreen, launchFullscreen, isFull, getOffset } from "./utils";
 import { CanvasContentProps, CanvasContentState } from '../constants/cavasTypes'
 import {Point} from "../utils/types";
 
-const defaultCavasProps={
-  width: 1366,
-  height:768
-}
+
 
 export default class CanvasContent extends React.Component<
   CanvasContentProps,
@@ -48,6 +45,7 @@ export default class CanvasContent extends React.Component<
 > {
   nodesContainerRef: any;
   container: any;
+  svgContainer: any;
   screenWidth?: number;
   screenHeight?: number;
 
@@ -55,6 +53,7 @@ export default class CanvasContent extends React.Component<
   handleResize?: (isLarge: boolean) => void;
   handleAdapt?: () => void;
   handleResizeTo?: (scale: number, P0?: [number, number]) => void;
+  handleScreenResizeTo?: (scale: number, P0?: [number, number]) => void;
   handleLocation?: (point:Point) => void;
 
   constructor(props) {
@@ -77,10 +76,23 @@ export default class CanvasContent extends React.Component<
       screenScale: 100,
       sourcePos: "",
       currentHoverNode: "",
-      deleteVisible: false
+      deleteVisible: false,
+      currentSelectedNode: null,
+      defaultCavasProps: {// 定义面板的默认属性
+        width: 1366,
+        height:768,
+        backgroundColor: "red",
+        backgroundImage: null,
+        grid:{
+          size: 20,
+          color: "red"
+        },
+        password:null
+      }
     };
     this.nodesContainerRef = React.createRef();
     this.container = React.createRef();
+    this.svgContainer = React.createRef();
   }
 
   componentDidMount() {
@@ -199,6 +211,7 @@ export default class CanvasContent extends React.Component<
   /** 监听整个区域，提升性能 */
   onNodesContainerMouseDown = (event: any) => {
     event.stopPropagation();
+    event.preventDefault()
     const { nodes, groups } = this.props;
     // 如果画布中有节点
     if (nodes && nodes.length > 0) {
@@ -239,7 +252,9 @@ export default class CanvasContent extends React.Component<
 
   /** 监听整个容器click事件 */
   onContainerMouseDown = (event: any) => {
+    // event.preventDefault()
     // event.stopPropagation();
+
 
     // 过滤掉节点和边
     const path = event.path;
@@ -247,6 +262,10 @@ export default class CanvasContent extends React.Component<
     if (!isNodeOrLink) {
       // 清空高亮的节点和边
       this.handleClearActive();
+      // // console.log("点击了面板");
+
+    }else{
+
     }
   };
 
@@ -351,7 +370,7 @@ export default class CanvasContent extends React.Component<
 
     if (checkNodeIsOverGroup(dragNode, currentGroup, "leave") === "out") {
       // 该节点是否在组外
-      //console.log("leave out", dragNode);
+      //// // console.log("leave out", dragNode);
       updateNodes({ ...dragNode, groupId: "" });
       const newNodes = currentGroup.nodes.filter(
         node => node.id !== dragNode.id
@@ -359,7 +378,7 @@ export default class CanvasContent extends React.Component<
       // 更新组，重新计算组的宽度
       updateGroups(newNodes, dragNode.groupId);
     } else {
-      //console.log("leave in");
+      //// // console.log("leave in");
       // 改变组的大小
       const newNodes = currentGroup.nodes.map(node =>
         node.id === dragNode.id ? dragNode : node
@@ -370,6 +389,8 @@ export default class CanvasContent extends React.Component<
 
   /** 按下节点 */
   onDragNodeMouseDown = (node: Node, event: any) => {
+    // // console.log("按下节点",node)
+    this.setState({currentSelectedNode: node})
     if (node) {
       const { k, x, y } = this.props.currTrans;
 
@@ -582,14 +603,16 @@ export default class CanvasContent extends React.Component<
   };
   // 获得画布缩放移动信息
   getTransformInfo = (currTrans: ZoomTransform) => {
-    console.log(currTrans)
+    // // console.log(currTrans)
     this.props.setCurrTrans(currTrans);
   };
 
   getScreenHandler = handleMap => {
     this.handleApplyTransform = handleMap.handleApplyTransform;
     this.handleResize = handleMap.handleResize;
+    // 覆盖掉原来的resize操作，改成resize父容器，container
     this.handleResizeTo = handleMap.handleResizeTo;
+    this.handleScreenResizeTo = handleMap.handleScreenResizeTo;
     this.handleAdapt = handleMap.handleAdapt;
     this.screenWidth = handleMap.screenWidth;
     this.screenHeight = handleMap.screenHeight;
@@ -649,8 +672,13 @@ export default class CanvasContent extends React.Component<
       const inNode = _.includes(array[i].classList, node);
       const inLink = _.includes(array[i].classList, link);
 
+
+
       if (inNode || inLink) {
         isNodeOrLink = true;
+        // // console.log(node,link)
+        // // console.log(this.state.currentHoverNode)
+
         break;
       }
     }
@@ -695,7 +723,7 @@ export default class CanvasContent extends React.Component<
     const x = this.screenWidth / 2 - (minX + maxX) / 2;
     const y = this.screenHeight / 2 - (minY + maxY) / 2;
     const transform = zoomIdentity.translate(x, y).scale(1);
-    console.log("transform=",transform)
+    // // console.log("transform=",transform)
     // 适应画布最大100%，保证在节点少的情况下不发生放大
     const scale = Math.min(
       this.screenWidth / componentWidth,
@@ -779,7 +807,6 @@ export default class CanvasContent extends React.Component<
 
     const layoutNodes = nodes.map(component => {
       const node = _.find(newNodes, n => n.id === component.id);
-
       return {
         ...component,
         x: node.view.x,
@@ -843,10 +870,12 @@ export default class CanvasContent extends React.Component<
 
   /** 被连线的节点 */
   onSelectNode = (currentNode: Node, key: OperateType) => {
+    this.setState({currentSelectedNode: currentNode})
     const { selectedNodes, deleteNodes } = this.props;
     if (key === OperateType.delete) {
       // 删除组件以及删除连线
       // 判断改节点是否在多选区域内
+      // // console.log("currentNode==",currentNode)
       if (selectedNodes && selectedNodes.includes(currentNode.id)) {
         deleteNodes(_.compact([...selectedNodes, currentNode.id]));
       } else {
@@ -954,18 +983,20 @@ export default class CanvasContent extends React.Component<
     const { deleteVisible, menuPos } = this.state;
     return (
       <div className="canvas-container-content" ref={this.container}>
-        <svg className="svg-caves"></svg>
+        <svg className="svg-caves" ref={this.svgContainer}></svg>
         <ReScreen
           type="DOM"
           getScreenHandler={this.getScreenHandler}
           needMinimap={false}
           needRefresh={true}
           zoomEnabled={false}
+          svgContainer={this.svgContainer}
+          dragDirection="NONE"
           mapPosition="RT-IN"
           mapWidth={200}
           mapHeight={300}
-          height={defaultCavasProps.height}
-          width={defaultCavasProps.width}
+          height={this.state.defaultCavasProps.height}
+          width={this.state.defaultCavasProps.width}
           mapRectStyle={{
             stroke: "#468CFF",
             fill: "transparent",

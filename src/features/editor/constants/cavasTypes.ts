@@ -66,4 +66,8 @@ export class CanvasContentState {
     currentHoverNode: string;
     /** 删除框 */
     deleteVisible: boolean;
+    /**当前选中节点*/
+    currentSelectedNode: Node;
+    /**面板的基本属性*/
+    defaultCavasProps: any;
 }
