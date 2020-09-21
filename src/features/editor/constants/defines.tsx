@@ -181,6 +181,26 @@ export enum ComponentKey {
     ellipse = "ellipse",
     star = "star"
 }
+// 基本组件的基本样式属性
+export class BaseCompStyle {
+    left?:string;
+    top?:string;
+    width?:string;
+    height?:string;
+    fontFamily?:string;
+    fontSize?:number
+    textAlign?:'left'|'center'|'right';
+    verticalAlign?:'top'|'middle'|'bottom'|'sub'|'super';
+    fontWeight?:number;
+    textDecoration?:string;
+    backgroundColor?:string;
+    opacity?:number
+}
+export class BaseCompProps {
+    style?:BaseCompStyle;
+    zIndex?:number;
+    rotate?:number;
+}
 
 // 单元类型
 // 输入组件

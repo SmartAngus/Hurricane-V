@@ -31,7 +31,9 @@ export type ToolbarType =
   | "layout"
   | "adapt"
   | "group"
-  | "preview";
+  | "preview"
+  | "bringUp"
+  | "bringDown";
 
 export class ToolbarProps {
   /** 适应画布 */
@@ -129,6 +131,10 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
   const isGroup = items.includes("group");
 
   const isPreview = items.includes("preview")
+
+  const isBringUp = items.includes("bringUp")
+
+  const isBringDown = items.includes("bringDown")
 
   /** 当前是否是全屏状态 */
 
@@ -285,6 +291,22 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
               <Tooltip title="预览">
                 <Icon type="caret-right"/>
                 <span className="toolbar-btn-text">预览</span>
+              </Tooltip>
+            </div>
+        )}
+        {isBringUp && (
+            <div className="toolbar-btn" onClick={onPreview} >
+              <Tooltip title="上移一层">
+                <Icon type="vertical-align-top" />
+                <span className="toolbar-btn-text">上移一层</span>
+              </Tooltip>
+            </div>
+        )}
+        {isBringDown && (
+            <div className="toolbar-btn" onClick={onPreview} >
+              <Tooltip title="下移一层">
+                <Icon type="vertical-align-bottom" />
+                <span className="toolbar-btn-text">下移一层</span>
               </Tooltip>
             </div>
         )}

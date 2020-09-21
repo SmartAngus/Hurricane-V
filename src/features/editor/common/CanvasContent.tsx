@@ -85,7 +85,8 @@ export default class CanvasContent extends React.Component<
         backgroundImage: null,
         grid:{
           size: 20,
-          color: "red"
+          color: "red",
+          url:'',// 网格图片的路径
         },
         password:null
       }

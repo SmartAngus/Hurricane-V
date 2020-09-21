@@ -132,6 +132,7 @@ export default function EditorDemo(props) {
     // 复制
     const handleCopy = () => {
         if (selectedNodes) {
+            console.log("selectedNodes,",selectedNodes)
             handleNodesCopy(_.compact(selectedNodes));
         }
     };
@@ -240,7 +241,7 @@ export default function EditorDemo(props) {
     const handleSave = async () => {
         const data = await handleSaveData();
 
-        // // console.log(editorLocalData);
+        console.log(editorLocalData);
         if (data) {
             message.success("保存成功");
         } else {
@@ -438,6 +439,8 @@ export default function EditorDemo(props) {
                     "adapt",
                     "group",
                     "preview",
+                    "bringUp",
+                    "bringDown"
                 ]}
                 onCopy={handleCopy}
                 onPaste={handlePaste}
