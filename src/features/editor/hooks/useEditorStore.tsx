@@ -13,6 +13,7 @@ export function useEditorStore() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedLinks, setSelectedLinks] = useState<string[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<Group>(undefined);
   const [editorLocalData, setEditorLocalData] = useLocalStorage("editorData", {
     id: "editorData-test"
   });
@@ -82,6 +83,8 @@ export function useEditorStore() {
     const newNodes = nodes ?? [];
     const newGroups = groups ?? [];
 
+    console.log("newNodes",newNodes)
+
     // 保存数据时，需要去掉ref
     newNodes.forEach(node => delete node.ref);
     newGroups.forEach(group => {
@@ -124,6 +127,8 @@ export function useEditorStore() {
     handleSaveData,
     groups,
     setGroups,
-    updateGroups
+    updateGroups,
+    selectedGroup,
+    setSelectedGroup,
   };
 }

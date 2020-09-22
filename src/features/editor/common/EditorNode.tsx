@@ -58,6 +58,8 @@ class EditorNodeProps {
 
   /** 改变节点大小 */
   onResize?: (width: number, height: number, x: number, y: number) => void;
+  /** 改变节点图层 */
+  onChangeZIndex?:(zIndex: number)=>void;
 }
 
 /**
@@ -89,6 +91,7 @@ export function EditorNode(props: EditorNodeProps) {
     currTrans,
     nodeRef,
     onResize,
+    onChangeZIndex,
     showSelector,
     id
   } = props;
@@ -195,11 +198,15 @@ export function EditorNode(props: EditorNodeProps) {
       width={currentNode.width}
       height={currentNode.height}
       chart={currentNode.chart}
+      style={currentNode.style}
+      rotate={currentNode.rotate}
+      zIndex={currentNode.zIndex}
       currTrans={currTrans}
       ref={nodeRef}
       isSelected={isSelected}
       onClick={handleClickNode}
       onResize={onResize}
+      onChangeZIndex={onChangeZIndex}
       onContextMenu={interactive ? onContextMenu : null}
     >
       {currentNode.chart==undefined?(

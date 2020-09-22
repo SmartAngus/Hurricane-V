@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import {EChart} from "../constants/defines";
+import {BaseCompStyle, EChart} from "../constants/defines";
 
 class NodeInfo {
   width: number;
   height: number;
   x: number;
   y: number;
-  chart?:EChart
+  chart?:EChart;
+  zIndex?:number;
+  rotate?:number;
+  style?:BaseCompStyle;
 }
 
 const useResize = (isResize: boolean, { width, height, x, y }: NodeInfo): NodeInfo => {

@@ -593,7 +593,6 @@ export default class ReScreen extends React.Component<Props, State> {
     if (!P0) {
       P0 = [this.screenWidth / 2, this.screenHeight / 2];
     }
-    console.log("screenDOM,",P0)
     /** 画布中心点对应到变化之前的点坐标 */
     const P1 = this.transform.invert(P0);
     console.log("screenDOM,",this.screenDOM)

@@ -65,9 +65,11 @@ export default function DragSeletor(props: DragSeletorProps) {
     });
 
     const popupContainer = getPopupContainer() as HTMLElement;
-    const width = getWidth(popupContainer);
-    const height = getHeight(popupContainer);
-    const position = getPosition(popupContainer) as { x: number; y: number };
+    const screen = document.querySelector(".screen") as HTMLElement
+    const trans = screen&&screen.style.transform
+    const width = getWidth(screen);
+    const height = getHeight(screen);
+    const position = getPosition(screen) as { x: number; y: number };
 
     return (
       <svg
@@ -77,8 +79,9 @@ export default function DragSeletor(props: DragSeletorProps) {
         height={height}
         style={{
           background: overlayColor,
-          left: position?.x,
-          top: position?.y
+          left: 0,
+          top: 0,
+          transform: trans
         }}
         xmlns="http://www.w3.org/2000/svg"
         onDrag={event => {

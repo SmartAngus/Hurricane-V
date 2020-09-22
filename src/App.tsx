@@ -41,7 +41,7 @@ const routes:any = [
             {
                 path: "/",
                 exact: true,
-                component: Home
+                component: EditorDemo
             },
             {
                 path: "/editor",

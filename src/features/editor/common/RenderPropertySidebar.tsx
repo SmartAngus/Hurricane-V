@@ -1,5 +1,5 @@
 import React,{ useRef,useState } from 'react'
-import { Tabs, Collapse, Select, Input, Tooltip, Icon,InputNumber } from 'antd'
+import { Tabs, Collapse, Select, Input, Tooltip, Icon,InputNumber, Button } from 'antd'
 import * as _ from 'lodash'
 import ColorsPicker from './ColorsPicker'
 import "../components/NodePanel.scss";
@@ -10,6 +10,7 @@ import "./RenderPropertySidebar.scss"
 const { TabPane } = Tabs
 const Panel = Collapse.Panel;
 const {Option} = Select
+const ButtonGroup = Button.Group;
 
 export class OptionsProperty  {
     id?:number;
@@ -37,7 +38,6 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     // // console.log("selectedNodes==",selectedNodes)
     // // console.log("nodes==",nodes)
     const node = _.find(nodes, n => n.id === selectedNodes[0]);
-    console.log("selectNode==",node)
     if(node===undefined){
         isCompSetting=false
         isSetting=true
@@ -64,8 +64,13 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
             setIsSelf(false)
         }
     }
+    // 位置和尺寸改变
     const onInputChange = (value)=>{
-
+        console.log(value)
+        node.x = value;
+    }
+    const parserInputValue = (value)=>{
+        return ""
     }
     // 渲染自定义页面设置
     const renderPageSetting = ()=>{
@@ -76,7 +81,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                     defaultActiveKey={['1']}
                     onChange={handleCollapseKey}
                     bordered={true}
-                    accordion
+                    accordion={false}
                 >
                     <Panel header="页面尺寸" key="1">
                         <div className="components-box">
@@ -130,10 +135,95 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                                     defaultActiveKey={['1']}
                                     onChange={handleCollapseKey}
                                     bordered={true}
-                                    accordion
+                                    accordion={false}
                                 >
-                                    <Panel header="页面尺寸" key="1">
-                                        <div className="components-box">sss</div>
+                                    <Panel header="位置和尺寸" key="1">
+                                        <div className="components-box">
+                                            <InputNumber
+                                                style={{width:110}}
+                                                value={node&&node.x}
+                                                formatter={value => `X ${value} px`}
+                                                parser={value => value.replace(/\[X|px]/g, '')}
+                                                onChange={onInputChange}
+                                            />
+                                            <InputNumber
+                                                style={{width:110}}
+                                                defaultValue={node&&node.y}
+                                                min={10}
+                                                max={2042}
+                                                formatter={value => `Y ${value} px`}
+                                                parser={value => value.replace(/\[X|px]/g, '')}
+                                                onChange={onInputChange}
+                                            />
+                                        </div>
+                                        <div className="components-box">
+                                            <InputNumber
+                                                style={{width:110}}
+                                                defaultValue={node&&node.width}
+                                                formatter={value => `W ${value} px`}
+                                                parser={value => value.replace(/\[X|px]/g, '')}
+                                                onChange={onInputChange}
+                                            />
+                                            <InputNumber
+                                                style={{width:110}}
+                                                defaultValue={node&&node.height}
+                                                min={10}
+                                                max={1080}
+                                                formatter={value => `H ${value} px`}
+                                                parser={value => value.replace(/\[X|px]/g, '')}
+                                                onChange={onInputChange}
+                                            />
+                                        </div>
+                                        <div className="components-box">
+                                            <InputNumber
+                                                style={{width:110}}
+                                                defaultValue={100}
+                                                min={-360}
+                                                max={360}
+                                                formatter={value => `旋转 ${value}`}
+                                                parser={value => value.replace(/\[X|px]/g, '')}
+                                                onChange={onInputChange}
+                                            />
+                                        </div>
+                                    </Panel>
+                                    <Panel header="文本" key="2">
+                                        <div className="components-box">
+                                            <div className="components-box-inner">
+                                                <label>字体</label>
+                                                <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
+                                                    <Option value="jack">Jack</Option>
+                                                    <Option value="lucy">Lucy</Option>
+                                                    <Option value="disabled" disabled>
+                                                        Disabled
+                                                    </Option>
+                                                    <Option value="Yiminghe">yiminghe</Option>
+                                                </Select>
+                                            </div>
+                                            <div className="components-box-inner">
+                                                <label>字体</label>
+                                                <InputNumber
+                                                    style={{width:120}}
+                                                    defaultValue={12}
+                                                    min={12}
+                                                    max={72}
+                                                    formatter={value => `${value}px`}
+                                                    parser={value => value.replace(/\[X|px]/g, '')}
+                                                    onChange={onInputChange}
+                                                />
+                                            </div>
+                                            <div className="components-box-inner">
+                                                <label>颜色</label>
+                                                <ColorsPicker/>
+                                            </div>
+                                            <div className="components-box-inner">
+                                                <label>对齐</label>
+                                                <ButtonGroup>
+                                                    <Button type="default"  icon="align-left" />
+                                                    <Button type="default"  icon="align-center" />
+                                                    <Button type="default"  icon="align-right" />
+                                                </ButtonGroup>
+                                            </div>
+                                        </div>
                                     </Panel>
                                 </Collapse>
                             </div>

@@ -31,6 +31,7 @@ export type ToolbarType =
   | "layout"
   | "adapt"
   | "group"
+  | "ungroup"
   | "preview"
   | "bringUp"
   | "bringDown";
@@ -69,7 +70,13 @@ export class ToolbarProps {
 
   onGroup?: () => void;
 
+  onUnGroup?: () => void;
+
   onPreview?: () => void;
+  //上移一层
+  onBringUp?: () => void;
+  //下移一层
+  onBringDown?: () => void;
 
   /** 处理全屏 */
   // handleFullScreen?: () => void;
@@ -95,7 +102,10 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
     onLayout,
     onAdapt,
     onGroup,
+    onUnGroup,
     onPreview,
+    onBringDown,
+    onBringUp,
   } = props;
   const scale = String(Math.round(screenScale));
 
@@ -129,6 +139,8 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
   const isLayout = items.includes("layout");
 
   const isGroup = items.includes("group");
+
+  const isUnGroup = items.includes("ungroup")
 
   const isPreview = items.includes("preview")
 
@@ -286,6 +298,15 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
           </div>
         )}
 
+        {isUnGroup && (
+            <div className="toolbar-btn" onClick={onUnGroup} >
+              <Tooltip title="解组">
+                <Icon type="border"/>
+                <span className="toolbar-btn-text">解组</span>
+              </Tooltip>
+            </div>
+        )}
+
         {isPreview && (
             <div className="toolbar-btn" onClick={onPreview} >
               <Tooltip title="预览">
@@ -295,7 +316,7 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
             </div>
         )}
         {isBringUp && (
-            <div className="toolbar-btn" onClick={onPreview} >
+            <div className="toolbar-btn" onClick={onBringUp} >
               <Tooltip title="上移一层">
                 <Icon type="vertical-align-top" />
                 <span className="toolbar-btn-text">上移一层</span>
@@ -303,7 +324,7 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
             </div>
         )}
         {isBringDown && (
-            <div className="toolbar-btn" onClick={onPreview} >
+            <div className="toolbar-btn" onClick={onBringDown} >
               <Tooltip title="下移一层">
                 <Icon type="vertical-align-bottom" />
                 <span className="toolbar-btn-text">下移一层</span>

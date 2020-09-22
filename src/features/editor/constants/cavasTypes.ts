@@ -13,6 +13,8 @@ export class CanvasContentProps {
     setSelectedLinks: (links: string[]) => void;
     selectedNodes: string[];
     setSelectedNodes: (links: string[]) => void;
+    setSelectedGroup?:(group:Group)=>void;
+    selectedGroup?:Group;
     /** 当前拖拽的节点 */
     dragNode: Node;
     updateNodes: (node: Node) => void;

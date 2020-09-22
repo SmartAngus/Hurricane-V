@@ -31,6 +31,8 @@ export default function EditorDemo(props) {
         setDragNode,
         selectedNodes,
         setSelectedNodes,
+        selectedGroup,
+        setSelectedGroup,
         updateNodes,
         updateLinks,
         copiedNodes,
@@ -144,7 +146,7 @@ export default function EditorDemo(props) {
         }
     };
 
-    // 删除
+    // 删除节点
     const handleDelete = () => {
         if (selectedNodes) {
             handleDeleteNodes(selectedNodes);
@@ -168,6 +170,29 @@ export default function EditorDemo(props) {
             handleDeleteLinks(selectedLinks);
         }
     };
+    // 将节点上移一层或者下移一层
+    const handleBringUp = () =>{
+        if (selectedNodes) {
+            console.log("将节点上移一层",selectedNodes, nodes)
+            selectedNodes.map((nodeId)=>{
+                const node = _.find(nodes, item => item.id === nodeId);
+                node.zIndex = node.zIndex?node.zIndex+1:1;
+                updateNodes(node)
+                return node;
+            })
+        }
+    }
+    const handleBringDown = () =>{
+        if (selectedNodes) {
+            console.log("将节点下移一层",selectedNodes)
+            selectedNodes.map((nodeId)=>{
+                const node = _.find(nodes, item => item.id === nodeId);
+                node.zIndex = node.zIndex?node.zIndex-1:1;
+                updateNodes(node)
+                return node;
+            })
+        }
+    }
 
     // 圈选
     const handleDragSelect = () => {
@@ -350,6 +375,10 @@ export default function EditorDemo(props) {
         updateGroupsInfo(currentNodes, "new");
         setSelectedNodes([]);
     };
+    const handleUnGroup=()=>{
+        console.log("解组：",groups,selectedGroup)
+        updateGroupsInfo(selectedGroup.nodes,'merge',selectedGroup.id)
+    }
 
     useKeyPress(
         "delete",
@@ -438,6 +467,7 @@ export default function EditorDemo(props) {
                     "layout",
                     "adapt",
                     "group",
+                    "ungroup",
                     "preview",
                     "bringUp",
                     "bringDown"
@@ -451,7 +481,10 @@ export default function EditorDemo(props) {
                 onLayout={canvasInstance && canvasInstance.layout}
                 onAdapt={canvasInstance && canvasInstance.handleShowAll}
                 onGroup={handleGroup}
+                onUnGroup={handleUnGroup}
                 onPreview={handlePreview}
+                onBringUp={handleBringUp}
+                onBringDown={handleBringDown}
             />
         </div>
     );
@@ -490,6 +523,8 @@ export default function EditorDemo(props) {
                 selectedNodes={selectedNodes}
                 setGroups={setGroups}
                 setSelectedNodes={setSelectedNodes}
+                selectedGroup={selectedGroup}
+                setSelectedGroup={setSelectedGroup}
                 updateNodes={updateNodes}
                 updateLinks={updateLinks}
                 deleteNodes={handleDeleteNodes}

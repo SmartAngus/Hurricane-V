@@ -213,7 +213,7 @@ export default class CanvasContent extends React.Component<
   onNodesContainerMouseDown = (event: any) => {
     event.stopPropagation();
     event.preventDefault()
-    const { nodes, groups } = this.props;
+    const { nodes, groups,setSelectedGroup } = this.props;
     // 如果画布中有节点
     if (nodes && nodes.length > 0) {
       const currentNode = _.find(nodes, c => {
@@ -239,7 +239,7 @@ export default class CanvasContent extends React.Component<
         }
       }
     }
-
+    // 如果当前选中的是组
     if (groups && groups.length > 0) {
       const currentGroup = _.find(groups, c => {
         if (c.ref && c.ref.current) {
@@ -248,6 +248,8 @@ export default class CanvasContent extends React.Component<
         return false;
       });
       this.onDragGroupMouseDown(currentGroup as any, event);
+    }else{
+      setSelectedGroup(undefined)
     }
   };
 
@@ -390,7 +392,7 @@ export default class CanvasContent extends React.Component<
 
   /** 按下节点 */
   onDragNodeMouseDown = (node: Node, event: any) => {
-    // // console.log("按下节点",node)
+    console.log("按下节点",node)
     this.setState({currentSelectedNode: node})
     if (node) {
       const { k, x, y } = this.props.currTrans;
@@ -417,7 +419,8 @@ export default class CanvasContent extends React.Component<
     event.preventDefault();
     event.stopPropagation();
 
-    const { setNodes, nodes, groups } = this.props;
+
+    const { setNodes, nodes } = this.props;
 
     const { k, x, y } = this.props.currTrans;
 
@@ -496,7 +499,10 @@ export default class CanvasContent extends React.Component<
 
   /** 按下组 */
   onDragGroupMouseDown = (group: Group, event: any) => {
+    console.log("按下组",group)
     if (group) {
+      const {setSelectedGroup} = this.props
+      setSelectedGroup(group);
       const { k, x, y } = this.props.currTrans;
 
       const { offsetTop, offsetLeft } = getOffset(this.container.current);
@@ -622,6 +628,7 @@ export default class CanvasContent extends React.Component<
 
   onDrag(event, name: string) {}
 
+  // 添加节点到画布
   onDrop(event: React.DragEvent<HTMLDivElement>) {
     const { setNodes, nodes, dragNode } = this.props;
     const { offsetTop, offsetLeft } = getOffset(this.container.current);
@@ -640,7 +647,7 @@ export default class CanvasContent extends React.Component<
 
     if (dragNode) {
       // 新添加了chart属性
-      const { key, name, type, width, height,chart } = dragNode;
+      const { key, name, type, width, height,chart,zIndex,style,rotate } = dragNode;
 
       const newNode = {
         key,
@@ -649,6 +656,9 @@ export default class CanvasContent extends React.Component<
         width,
         height,
         chart,
+        zIndex,
+        style,
+        rotate,
         x: (screenX - x) / k - NODE_WIDTH / 2,
         y: (screenY - y) / k - NODE_HEIGHT / 2,
         id: uuid.v4(),
@@ -924,6 +934,14 @@ export default class CanvasContent extends React.Component<
     };
     updateNodes(newNode);
   };
+  onChangeZIndex = (node:Node,zIndex:number)=>{
+    const { updateNodes } = this.props;
+    const newNode = {
+      ...node,
+      zIndex
+    };
+    updateNodes(newNode);
+  }
   // 渲染节点内容
   renderCanvas = () => {
     const { currentHoverNode } = this.state;
@@ -946,6 +964,7 @@ export default class CanvasContent extends React.Component<
                 isSelected={isSelected}
                 showSelector={showSelector}
                 onResize={this.onResize.bind(this, child)}
+                onChangeZIndex={this.onChangeZIndex.bind(this,child)}
                 currTrans={this.props.currTrans}
                 onSelect={this.onSelectNode}
               />

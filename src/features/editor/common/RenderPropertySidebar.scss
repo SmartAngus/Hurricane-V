@@ -4,4 +4,25 @@
     padding-top: 10px;
     padding-left: 15px;
   }
+  .components-box{
+    display: flex;
+    /* flex-flow: inherit; */
+    align-content: space-between;
+    width: 100%;
+    /* flex-grow: revert; */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px;
+
+  }
+}
+.components-box-inner{
+  margin-bottom: 10px;
+  display: flex;
+  width: 100%;
+  clear: both;
+}
+.components-box-inner label{
+  margin-right: 15px;
 }

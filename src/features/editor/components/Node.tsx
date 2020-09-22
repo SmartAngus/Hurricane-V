@@ -7,7 +7,7 @@
 import * as React from "react";
 import { useResize } from "../hooks/useResize";
 import "./Node.scss";
-import {EChart} from '../constants/defines'
+import {BaseCompStyle, EChart} from '../constants/defines'
 const { useRef, useState, useEffect, useCallback } = React;
 
 class NodeProps {
@@ -45,7 +45,11 @@ class NodeProps {
   onResize?: (width: number, height: number, x: number, y: number) => void;
 
   /** chart 信息 */
-  chart?:EChart
+  chart?:EChart;
+  zIndex?:number;
+  style?:BaseCompStyle;
+  rotate?:number;
+  onChangeZIndex?:(zIndex:number)=>void;
 }
 
 /**
@@ -79,7 +83,11 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     width,
     height,
     isSelected,
-    onResize
+    onResize,
+    onChangeZIndex,
+    zIndex,
+    rotate,
+    style,
   } = props;
 
   const [showSelector, setShowSelector] = useState(false);
@@ -96,7 +104,10 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     height,
     x,
     y,
-    chart
+    chart,
+    zIndex,
+    rotate,
+    style,
   });
 
   const handleContextMenu = (event: React.MouseEvent<any>) => {
@@ -180,15 +191,19 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
   useEffect(() => {
     onResize(resizeWidth, resizeHeight, resizeX, resizeY);
   }, [resizeWidth, resizeHeight, resizeX, resizeY]);
+  useEffect(()=>{
+    onChangeZIndex(zIndex)
+  },[zIndex])
 
   return (
     <div
       className="editor-node"
       style={{
+        zIndex:zIndex,
         left: x,
         top: y,
         width,
-        height
+        height,
       }}
       ref={ref}
       onClick={onClick}

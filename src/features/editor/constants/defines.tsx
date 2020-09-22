@@ -110,6 +110,15 @@ export class Node {
     disabled?: boolean;
     /** 定义描述node里面包含的图表 */
     chart?:EChart;
+
+    /**定义基本样式*/
+    style?:BaseCompStyle;
+
+    /**定义图层**/
+    zIndex?:number;
+
+    /**定义旋转*/
+    rotate?:number;
 }
 
 export class NodePanel {
@@ -196,11 +205,7 @@ export class BaseCompStyle {
     backgroundColor?:string;
     opacity?:number
 }
-export class BaseCompProps {
-    style?:BaseCompStyle;
-    zIndex?:number;
-    rotate?:number;
-}
+
 
 // 单元类型
 // 输入组件
