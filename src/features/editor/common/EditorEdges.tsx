@@ -37,6 +37,8 @@ class EditorEdgesProps {
 
   /** 是否连线 */
   isDraggingLink?: boolean;
+  /** 是否旋转 */
+  isDraggingRotate?:boolean;
 
   /** 拖拽连线属性 */
   dragLink?: {

@@ -37,6 +37,8 @@ export class CanvasContentState {
     isDraggingLink: boolean;
     /** 拖拽组 */
     isDraggingGroup: boolean;
+    /** 拖拽旋转 */
+    isDraggingRotate: boolean;
     /** 拖拽组 */
     dragGroup: Group;
     /** 拖拽节点 */
@@ -56,6 +58,13 @@ export class CanvasContentState {
         x: number;
         y: number;
         /** 来源边位置 */
+    };
+    dragRotate:{
+        /** 源起节点id */
+        originId: string;
+        center:[number,number];
+        first:[number,number];
+        second:[number,number];
     };
     sourcePos: string;
     /** 对话框展示标志位 */

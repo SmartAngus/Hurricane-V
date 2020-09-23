@@ -383,10 +383,12 @@ export default function EditorDemo(props) {
     useKeyPress(
         "delete",
         () => {
-            handleDelete();
+            if(document.activeElement.tagName === "BODY"){
+                handleDelete();
+            }
         },
         {
-            events: ["keydown", "keyup"]
+            events: ["keydown", "keyup"],
         }
     );
 
@@ -544,7 +546,7 @@ export default function EditorDemo(props) {
             <div className="editor-container">
                 {renderNodePanel}
                 {renderCanvas}
-                <RenderPropertySidebar selectedNodes={selectedNodes} nodes={nodes}/>
+                <RenderPropertySidebar selectedNodes={selectedNodes} nodes={nodes} updateNodes={updateNodes}/>
             </div>
         </div>
     );

@@ -424,8 +424,8 @@ export default class ReScreen extends React.Component<Props, State> {
     } else {
       finalTransform = transform;
     }
-    // 进制拖砖
-    // if(this.props.dragDirection === 'NONE') return
+    // 禁止画布拖拽,放开会产生成组功能不可用
+    //if(this.props.dragDirection === 'NONE') return
     // 画布的最终变化效果是自身变化加上缩略图变化的效果
     const { onScreenChange } = this.props;
     this.applyTransform(finalTransform);

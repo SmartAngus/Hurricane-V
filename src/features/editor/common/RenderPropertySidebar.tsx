@@ -17,6 +17,7 @@ export class OptionsProperty  {
     name?:string;
     selectedNodes?:any;
     nodes?:any;
+    updateNodes?:any;
 }
 // 定义页面尺寸
 const pageSizes = [
@@ -29,7 +30,7 @@ const pageSizes = [
 
 const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     const sidebarRef = useRef(null)
-    const {selectedNodes,nodes} = props;
+    const {selectedNodes,nodes,updateNodes} = props;
     const [isSelf,setIsSelf] = useState(false)
     let isCompSetting= false
     let isSetting = false
@@ -65,12 +66,22 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         }
     }
     // 位置和尺寸改变
+    const onInputPositionXChange = (value)=>{node.x = value;updateNodes(node)}
+    const onInputPositionYChange = (value)=>{node.y = value;updateNodes(node)}
+    const onInputSizeWChange = (value)=>{
+        node.width = value;updateNodes(node)
+    }
+    const onInputSizeHChange = (value)=>{node.height = value;updateNodes(node)}
+    // 旋转角度改变
+    const onInputRotateChange = (value)=>{node.rotate = value;updateNodes(node)}
     const onInputChange = (value)=>{
         console.log(value)
         node.x = value;
     }
     const parserInputValue = (value)=>{
-        return ""
+        let reg = /(\D+)\s(\d+)\s(\D+)/
+        let r = value.match(reg);
+        return r&&r[2]
     }
     // 渲染自定义页面设置
     const renderPageSetting = ()=>{
@@ -143,46 +154,46 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                                                 style={{width:110}}
                                                 value={node&&node.x}
                                                 formatter={value => `X ${value} px`}
-                                                parser={value => value.replace(/\[X|px]/g, '')}
-                                                onChange={onInputChange}
+                                                parser={parserInputValue}
+                                                onChange={onInputPositionXChange}
                                             />
                                             <InputNumber
                                                 style={{width:110}}
-                                                defaultValue={node&&node.y}
+                                                value={node&&node.y}
                                                 min={10}
                                                 max={2042}
                                                 formatter={value => `Y ${value} px`}
-                                                parser={value => value.replace(/\[X|px]/g, '')}
-                                                onChange={onInputChange}
+                                                parser={parserInputValue}
+                                                onChange={onInputPositionYChange}
                                             />
                                         </div>
                                         <div className="components-box">
                                             <InputNumber
                                                 style={{width:110}}
-                                                defaultValue={node&&node.width}
+                                                value={node&&node.width}
                                                 formatter={value => `W ${value} px`}
-                                                parser={value => value.replace(/\[X|px]/g, '')}
-                                                onChange={onInputChange}
+                                                parser={parserInputValue}
+                                                onChange={onInputSizeWChange}
                                             />
                                             <InputNumber
                                                 style={{width:110}}
-                                                defaultValue={node&&node.height}
+                                                value={node&&node.height}
                                                 min={10}
                                                 max={1080}
                                                 formatter={value => `H ${value} px`}
-                                                parser={value => value.replace(/\[X|px]/g, '')}
-                                                onChange={onInputChange}
+                                                parser={parserInputValue}
+                                                onChange={onInputSizeHChange}
                                             />
                                         </div>
                                         <div className="components-box">
                                             <InputNumber
                                                 style={{width:110}}
-                                                defaultValue={100}
+                                                value={node&&node.rotate}
                                                 min={-360}
                                                 max={360}
-                                                formatter={value => `旋转 ${value}`}
-                                                parser={value => value.replace(/\[X|px]/g, '')}
-                                                onChange={onInputChange}
+                                                formatter={value => `旋转 ${value} deg`}
+                                                parser={parserInputValue}
+                                                onChange={onInputRotateChange}
                                             />
                                         </div>
                                     </Panel>

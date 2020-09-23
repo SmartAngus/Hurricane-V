@@ -31,7 +31,7 @@ import {
   findAllDownstreamLinks,
   findNearbyNode
 } from "../utils/find";
-import { calcLinkPosition } from "../utils/calc";
+import { calcLinkPosition,getRotateAngle } from "../utils/calc";
 import { pointInPoly, checkNodeIsOverGroup } from "../utils/layout";
 import { exitFullscreen, launchFullscreen, isFull, getOffset } from "./utils";
 import { CanvasContentProps, CanvasContentState } from '../constants/cavasTypes'
@@ -62,9 +62,11 @@ export default class CanvasContent extends React.Component<
       isDraggingNode: false,
       isDraggingLink: false,
       isDraggingGroup: false,
+      isDraggingRotate:false,
       dragNode: null,
       dragLink: null,
       dragGroup: null,
+      dragRotate:null,
       dragNodeOffset: null,
       dragGroupOffset: null,
       menuDisplay: false,
@@ -142,6 +144,9 @@ export default class CanvasContent extends React.Component<
     if (nextProps.groups !== this.props.groups) {
       this.forceUpdate();
     }
+    if(this.state.isDraggingRotate!==nextState.isDraggingRotate){
+      this.toggleDragRoate(nextState.isDraggingRotate)
+    }
   }
 
   /** 打开全局操作菜单，包括复制，粘贴，删除等 */
@@ -178,6 +183,15 @@ export default class CanvasContent extends React.Component<
       window.removeEventListener("mouseup", this.onDragLinkMouseUp);
     }
   };
+  toggleDragRoate = (isDraggingRotate: Boolean) => {
+    if (isDraggingRotate) {
+      window.addEventListener("mousemove", this.onDragRotateMouseMove);
+      window.addEventListener("mouseup", this.onDragRotateMouseUp);
+    } else {
+      window.removeEventListener("mousemove", this.onDragRotateMouseMove);
+      window.removeEventListener("mouseup", this.onDragRotateMouseUp);
+    }
+  };
 
   onDragLinkMouseMove = (event: any) => {
     event.stopPropagation();
@@ -212,7 +226,7 @@ export default class CanvasContent extends React.Component<
   /** 监听整个区域，提升性能 */
   onNodesContainerMouseDown = (event: any) => {
     event.stopPropagation();
-    event.preventDefault()
+    //event.preventDefault()
     const { nodes, groups,setSelectedGroup } = this.props;
     // 如果画布中有节点
     if (nodes && nodes.length > 0) {
@@ -222,7 +236,6 @@ export default class CanvasContent extends React.Component<
         }
         return false;
       });
-
       const type = event.target.dataset && event.target.dataset.type;
       const position = event.target.dataset && event.target.dataset.position;
       // 如果当前选中的是节点
@@ -233,6 +246,9 @@ export default class CanvasContent extends React.Component<
           return;
         } else if (type === "resize") {
           return;
+        }else if(type === "rotate" && position){
+          /**旋转图形**/
+          this.onDragRotateMouseDown(currentNode as any, 'top')
         } else {
           /** 拖拽节点，排除resize节点 */
           this.onDragNodeMouseDown(currentNode as any, event);
@@ -257,7 +273,6 @@ export default class CanvasContent extends React.Component<
   onContainerMouseDown = (event: any) => {
     // event.preventDefault()
     // event.stopPropagation();
-
 
     // 过滤掉节点和边
     const path = event.path;
@@ -367,6 +382,74 @@ export default class CanvasContent extends React.Component<
     });
   };
 
+  /** 鼠标按下，进行旋转 */
+  onDragRotateMouseDown = (node: Node, position: string) => {
+    const { x, y } = calcLinkPosition(node, position);
+    const cx = node&&(node.x+Math.round(node.width/2))
+    const cy = node&&(node.y+Math.round(node.height/2))
+    this.setState({
+      isDraggingRotate: true,
+      dragRotate: {
+        originId: node.id,
+        center: [cx,cy],
+        first: [x,y],
+        second:[0,0]
+      },
+      sourcePos: position
+    });
+  }
+  /** 监听鼠标旋转图形 */
+  onDragRotateMouseMove = (event: any) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const { offsetTop, offsetLeft } = getOffset(this.container.current);
+    // 计算滚动条的位置
+    const scrollLeft =
+        document.documentElement.scrollLeft +
+        document.querySelector("#root").scrollLeft;
+    const scrollTop =
+        document.documentElement.scrollTop +
+        document.querySelector("#root").scrollTop;
+
+    const screenX = event.clientX - offsetLeft + scrollLeft;
+    const screenY = event.clientY - offsetTop + scrollTop;
+
+    const { k, x, y } = this.props.currTrans;
+
+    this.setState(preState => {
+      const { dragRotate } = preState;
+      return {
+        dragRotate: {
+          ...dragRotate,
+          second: [(screenX - x) / k,(screenY - y) / k]
+        }
+      };
+    });
+    const rotateAngle = getRotateAngle(this.state.dragRotate.center,this.state.dragRotate.first,this.state.dragRotate.second);
+    let deg = rotateAngle/Math.PI*180
+    if(isNaN(deg)){
+      return;
+    }
+    deg=Math.round(deg)
+    const {updateNodes,nodes}=this.props
+    this.state.dragNode.rotate=deg;
+    this.setState({
+      dragNode:{
+          ...this.state.dragNode,
+      }
+    })
+    updateNodes(this.state.dragNode)
+  }
+  /** 鼠标抬起，旋转结束 */
+  onDragRotateMouseUp = (event: any) => {
+    this.setState({
+      isDraggingRotate: false,
+      dragRotate: null,
+      sourcePos: ""
+    });
+  }
+
   /** 处理节点与组的关系 */
   handleNodeIsOverGroup = (currentGroup: Group, dragNode: Node) => {
     const { updateNodes, updateGroups } = this.props;
@@ -392,7 +475,6 @@ export default class CanvasContent extends React.Component<
 
   /** 按下节点 */
   onDragNodeMouseDown = (node: Node, event: any) => {
-    console.log("按下节点",node)
     this.setState({currentSelectedNode: node})
     if (node) {
       const { k, x, y } = this.props.currTrans;
@@ -499,7 +581,6 @@ export default class CanvasContent extends React.Component<
 
   /** 按下组 */
   onDragGroupMouseDown = (group: Group, event: any) => {
-    console.log("按下组",group)
     if (group) {
       const {setSelectedGroup} = this.props
       setSelectedGroup(group);
@@ -687,8 +768,8 @@ export default class CanvasContent extends React.Component<
 
       if (inNode || inLink) {
         isNodeOrLink = true;
-        // // console.log(node,link)
-        // // console.log(this.state.currentHoverNode)
+        // console.log(node,link)
+        // console.log(this.state.currentHoverNode)
 
         break;
       }
@@ -825,8 +906,8 @@ export default class CanvasContent extends React.Component<
       };
     });
     setNodes(layoutNodes);
-  };
-
+  }
+  /********layout结束********/
   /** 点击连线 */
   onSelectLink = (key: string) => {
     const { selectedLinks, setSelectedLinks } = this.props;
@@ -992,6 +1073,7 @@ export default class CanvasContent extends React.Component<
             onContextMenu={this.onContextMenuLink}
             onSelectLink={this.onSelectLink}
             isDraggingLink={this.state.isDraggingLink}
+            isDraggingRotate={this.state.isDraggingRotate}
             dragLink={this.state.dragLink}
           />
         </div>

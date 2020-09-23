@@ -5,6 +5,7 @@
  */
 
 import * as React from "react";
+import {Icon} from 'antd'
 import { useResize } from "../hooks/useResize";
 import "./Node.scss";
 import {BaseCompStyle, EChart} from '../constants/defines'
@@ -157,16 +158,37 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     "top-left",
     "top-right",
     "bottom-left",
-    "bottom-right"
+    "bottom-right",
+    "rotate"
   ];
 
   // 伸缩器
   const renderResize = (
     <div className="resizable">
       <div className="resizers">
-        {RESIZE_SELECTOR.map(item => (
-          <div key={item} className={`resizer ${item}`} data-type="resize" />
-        ))}
+        {RESIZE_SELECTOR.map(item => {
+          if (item === 'rotate') {
+            return (
+                <a
+                    key="top-rotate"
+                    data-type="rotate"
+                    data-position="top-rotate"
+                    className={`node-selector-rotate`}
+                    style={{left: `${width / 2 - 14}px`,top:-25,color:'#000',cursor:"all-scroll",fontSize:16,fontWeight:800}}
+                >
+                  <Icon type="reload"/>
+                  <span
+                      data-type="rotate"
+                      data-position="top-rotate"
+                      className={`node-selector-rotate`}
+                      style={{width:"100%",height:"100%",zIndex:2,background:'red',left:0,opacity:0}}
+                  ></span>
+                </a>
+            )
+          }else{
+            return <div key={item} className={`resizer ${item}`} data-type="resize" />
+          }
+        })}
       </div>
     </div>
   );
@@ -204,6 +226,7 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
         top: y,
         width,
         height,
+        transform: `rotate(${rotate}deg)`
       }}
       ref={ref}
       onClick={onClick}
