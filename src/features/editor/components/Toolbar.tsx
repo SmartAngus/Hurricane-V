@@ -34,6 +34,8 @@ export type ToolbarType =
   | "ungroup"
   | "preview"
   | "bringUp"
+  | "undo"
+  | "redo"
   | "bringDown";
 
 export class ToolbarProps {
@@ -78,6 +80,10 @@ export class ToolbarProps {
   //下移一层
   onBringDown?: () => void;
 
+  onRedo?:()=>void;
+
+  onUndo?:()=>void;
+
   /** 处理全屏 */
   // handleFullScreen?: () => void;
   /** Toolbar选项 */
@@ -106,6 +112,8 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
     onPreview,
     onBringDown,
     onBringUp,
+    onRedo,
+    onUndo,
   } = props;
   const scale = String(Math.round(screenScale));
 
@@ -147,6 +155,10 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
   const isBringUp = items.includes("bringUp")
 
   const isBringDown = items.includes("bringDown")
+
+  const isUndo = items.includes("undo")
+
+  const isRedo = items.includes("redo")
 
   /** 当前是否是全屏状态 */
 
@@ -328,6 +340,22 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
               <Tooltip title="下移一层">
                 <Icon type="vertical-align-bottom" />
                 <span className="toolbar-btn-text">下移一层</span>
+              </Tooltip>
+            </div>
+        )}
+        {isUndo && (
+            <div className="toolbar-btn" onClick={onUndo} >
+              <Tooltip title="撤销">
+                <Icon type="undo" />
+                <span className="toolbar-btn-text">撤销</span>
+              </Tooltip>
+            </div>
+        )}
+        {isRedo && (
+            <div className="toolbar-btn" onClick={onRedo} >
+              <Tooltip title="恢复">
+                <Icon type="redo" />
+                <span className="toolbar-btn-text">恢复</span>
               </Tooltip>
             </div>
         )}

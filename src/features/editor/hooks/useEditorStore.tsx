@@ -17,6 +17,11 @@ export function useEditorStore() {
   const [editorLocalData, setEditorLocalData] = useLocalStorage("editorData", {
     id: "editorData-test"
   });
+  const [editorLocalHistoryData,setEditorLocalHistoryData]= useLocalStorage("editorDataHistory", {
+    id: "editorData-history",
+    currentIndex:0,
+    datas:[]
+  });
   const [dragNode, setDragNode] = useState(null);
 
   const [currTrans, setCurrTrans] = useState<ZoomTransform>(zoomIdentity);
@@ -78,12 +83,10 @@ export function useEditorStore() {
 
     setGroups(newGroups);
   };
-
+  // 保存最新的数据
   const handleSaveData = async () => {
     const newNodes = nodes ?? [];
     const newGroups = groups ?? [];
-
-    console.log("newNodes",newNodes)
 
     // 保存数据时，需要去掉ref
     newNodes.forEach(node => delete node.ref);
@@ -102,6 +105,68 @@ export function useEditorStore() {
     });
     return result;
   };
+  const isObjectValueEqual = (a, b)=>{
+    // 判断两个对象是否指向同一内存，指向同一内存返回true
+    if(a==undefined||b==undefined) return true
+    if (a === b) return true
+    // 获取两个对象键值数组
+    let aProps = Object.getOwnPropertyNames(a)
+    let bProps = Object.getOwnPropertyNames(b)
+    // 判断两个对象键值数组长度是否一致，不一致返回false
+    if (aProps.length !== bProps.length) return false
+    // 遍历对象的键值
+    for (let prop in a) {
+      // 判断a的键值，在b中是否存在，不存在，返回false
+      if (b.hasOwnProperty(prop)) {
+        // 判断a的键值是否为对象，是则递归，不是对象直接判断键值是否相等，不相等返回false
+        if (typeof a[prop] === 'object') {
+          if (!isObjectValueEqual(a[prop], b[prop])) return false
+        } else if (a[prop] !== b[prop]) {
+          return false
+        }
+      } else {
+        return false
+      }
+    }
+    return true
+  }
+  // 保存操作历史数据
+  const handleSaveHistoryData = async () => {
+    const newNodes = nodes ?? [];
+    const newGroups = groups ?? [];
+
+    // 保存数据时，需要去掉ref,保存历史数据不需要，否则拿不到当前的节点
+    // newNodes.forEach(node => delete node.ref);
+    // newGroups.forEach(group => {
+    //   delete group.ref;
+    //   group.nodes.forEach(node => {
+    //     delete node.ref;
+    //   });
+    // });
+    const data = {
+      ...(editorData as any),
+      nodes: newNodes,
+      groups: newGroups,
+      links
+    }
+   if(editorLocalHistoryData.datas&&editorLocalHistoryData.datas.length>0){
+     const isEqual = isObjectValueEqual(data,editorLocalHistoryData.datas.slice(-1)[0])
+     if(isEqual){
+       return;
+     }else{
+       editorLocalHistoryData.datas.push(data)
+     }
+   }else{
+     editorLocalHistoryData.datas.push(data)
+   }
+   if(editorLocalHistoryData.datas.length>100){// 最多记录100步历史
+     editorLocalHistoryData.datas.splice(0,editorLocalHistoryData.datas.length-100)
+   }
+    editorLocalHistoryData.currentIndex = editorLocalHistoryData.datas.length-1;
+    const result = await setEditorLocalHistoryData(editorLocalHistoryData);
+    return result;
+
+  }
 
   return {
     editorData,
@@ -130,5 +195,8 @@ export function useEditorStore() {
     updateGroups,
     selectedGroup,
     setSelectedGroup,
+    editorLocalHistoryData,
+    setEditorLocalHistoryData,
+    handleSaveHistoryData,
   };
 }

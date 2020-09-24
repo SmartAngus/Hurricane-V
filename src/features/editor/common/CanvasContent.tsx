@@ -12,6 +12,7 @@ import { EditorNode } from "./EditorNode";
 import { EditorGroup } from "./EditorGroup";
 import { EditorEdges } from "./EditorEdges";
 import { ContextMenu } from "./ContextMenu";
+import { useEditorStore} from '../hooks'
 import {
   MenuPos,
   CONNECTOR,
@@ -55,6 +56,7 @@ export default class CanvasContent extends React.Component<
   handleResizeTo?: (scale: number, P0?: [number, number]) => void;
   handleScreenResizeTo?: (scale: number, P0?: [number, number]) => void;
   handleLocation?: (point:Point) => void;
+
 
   constructor(props) {
     super(props);
@@ -222,6 +224,11 @@ export default class CanvasContent extends React.Component<
       };
     });
   };
+  // resize结束
+  resizeMouseUp = ()=>{
+    const {onSaveHistory}=this.props
+    onSaveHistory()
+  }
 
   /** 监听整个区域，提升性能 */
   onNodesContainerMouseDown = (event: any) => {
@@ -245,6 +252,8 @@ export default class CanvasContent extends React.Component<
           this.onDragLinkMouseDown(currentNode as any, position);
           return;
         } else if (type === "resize") {
+          event.target.removeEventListener("mouseup",this.resizeMouseUp)
+          event.target.addEventListener("mouseup",this.resizeMouseUp)
           return;
         }else if(type === "rotate" && position){
           /**旋转图形**/
@@ -280,7 +289,6 @@ export default class CanvasContent extends React.Component<
     if (!isNodeOrLink) {
       // 清空高亮的节点和边
       this.handleClearActive();
-      // // console.log("点击了面板");
 
     }else{
 
@@ -334,7 +342,7 @@ export default class CanvasContent extends React.Component<
 
   /** 鼠标抬起，连线结束 */
   onDragLinkMouseUp = (event: any) => {
-    const { setLinks, links, nodes } = this.props;
+    const { setLinks, links, nodes,onSaveHistory } = this.props;
     const { dragLink } = this.state;
     const { offsetTop, offsetLeft } = getOffset(this.container.current);
 
@@ -380,6 +388,8 @@ export default class CanvasContent extends React.Component<
       dragLink: null,
       sourcePos: ""
     });
+    onSaveHistory()
+
   };
 
   /** 鼠标按下，进行旋转 */
@@ -443,11 +453,13 @@ export default class CanvasContent extends React.Component<
   }
   /** 鼠标抬起，旋转结束 */
   onDragRotateMouseUp = (event: any) => {
+    const {onSaveHistory}=this.props
     this.setState({
       isDraggingRotate: false,
       dragRotate: null,
       sourcePos: ""
     });
+    onSaveHistory()
   }
 
   /** 处理节点与组的关系 */
@@ -456,7 +468,6 @@ export default class CanvasContent extends React.Component<
 
     if (checkNodeIsOverGroup(dragNode, currentGroup, "leave") === "out") {
       // 该节点是否在组外
-      //// // console.log("leave out", dragNode);
       updateNodes({ ...dragNode, groupId: "" });
       const newNodes = currentGroup.nodes.filter(
         node => node.id !== dragNode.id
@@ -500,7 +511,6 @@ export default class CanvasContent extends React.Component<
   onDragNodeMouseMove = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
-
 
     const { setNodes, nodes } = this.props;
 
@@ -548,7 +558,8 @@ export default class CanvasContent extends React.Component<
   /** 放开节点 */
   onDragNodeMouseUp = (event: any) => {
     event.stopPropagation();
-    const { groups, updateNodes, updateGroups } = this.props;
+    console.log("onDragNodeMouseUp")
+    const { groups, updateNodes, updateGroups,onSaveHistory } = this.props;
 
     const { dragNode } = this.state;
     // 通过是否有groupId来区分是从组中脱离还是拖入组中
@@ -577,6 +588,8 @@ export default class CanvasContent extends React.Component<
     this.setState({
       isDraggingNode: false
     });
+
+   onSaveHistory()
   };
 
   /** 按下组 */
@@ -679,7 +692,7 @@ export default class CanvasContent extends React.Component<
   /** 放开组 */
   onDragGroupMouseUp = (event: any) => {
     event.stopPropagation();
-    const { groups, updateNodes, updateGroups } = this.props;
+    const { groups, updateNodes, updateGroups,onSaveHistory } = this.props;
 
     const { dragGroup } = this.state;
 
@@ -688,6 +701,7 @@ export default class CanvasContent extends React.Component<
       dragGroup: null,
       dragGroupOffset: null
     });
+    onSaveHistory()
   };
   // 获得画布缩放移动信息
   getTransformInfo = (currTrans: ZoomTransform) => {
@@ -711,7 +725,7 @@ export default class CanvasContent extends React.Component<
 
   // 添加节点到画布
   onDrop(event: React.DragEvent<HTMLDivElement>) {
-    const { setNodes, nodes, dragNode } = this.props;
+    const { setNodes, nodes, dragNode,onSaveHistory } = this.props;
     const { offsetTop, offsetLeft } = getOffset(this.container.current);
     // 计算滚动条的位置
     const scrollLeft =
@@ -745,9 +759,14 @@ export default class CanvasContent extends React.Component<
         id: uuid.v4(),
         ref: React.createRef()
       };
+      console.log("newNode",newNode)
+      console.log(nodes)
 
       setNodes([...nodes, newNode]);
+      nodes.push(newNode)
+      onSaveHistory()
     }
+
   }
 
   /** 清空高亮组件和连线 */

@@ -220,6 +220,11 @@ export default class ReScreen extends React.Component<Props, State> {
     this.getScreenToMapTransform();
     // 初始化设置编辑窗口居中，设置滚动条位置
     this.handleScreenResizeTo(1,[this.screenWidth/2,this.screenHeight/2-100])
+    window.localStorage.setItem("editorDataHistory", JSON.stringify({
+      id: "editorData-history",
+      currentIndex:0,
+      datas:[]
+    }));
   }
 
   initEvent() {
@@ -587,7 +592,6 @@ export default class ReScreen extends React.Component<Props, State> {
   handleScreenResizeTo = (newScale: number, P0?: [number, number]) => {
     // mm
     const screenScale = newScale * this.minimapTransform.k;
-    console.log("screenScale,",screenScale)
 
     /** 如果未指定缩放中心，则默认为画布中心点 */
     if (!P0) {
@@ -595,7 +599,6 @@ export default class ReScreen extends React.Component<Props, State> {
     }
     /** 画布中心点对应到变化之前的点坐标 */
     const P1 = this.transform.invert(P0);
-    console.log("screenDOM,",this.screenDOM)
     // 缩放class类为screen的div
     // this.screenContainer.call(
     //     this.screenZoom.transform,

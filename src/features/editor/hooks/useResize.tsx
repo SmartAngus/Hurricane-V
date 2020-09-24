@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import {BaseCompStyle, EChart} from "../constants/defines";
 
+
 class NodeInfo {
   width: number;
   height: number;
@@ -26,6 +27,7 @@ const useResize = (isResize: boolean, { width, height, x, y }: NodeInfo): NodeIn
   useEffect(() => {
     const resizers = document.querySelectorAll('.resizer');
     const element = document.querySelector('.resizable');
+
     const minSize = 20;
     // 初始高度宽度
     let originWidth = 0;
@@ -36,12 +38,12 @@ const useResize = (isResize: boolean, { width, height, x, y }: NodeInfo): NodeIn
     // 鼠标拖拽的初始位置
     let originMouseX = 0;
     let originMouseY = 0;
+
     if (isResize) {
       for (let i = 0; i < resizers.length; i++) {
         const currentResizer = resizers[i];
         currentResizer.addEventListener('mousedown', e => {
           e.preventDefault();
-
           originWidth = parseFloat(
             getComputedStyle(element, null)
               .getPropertyValue('width')

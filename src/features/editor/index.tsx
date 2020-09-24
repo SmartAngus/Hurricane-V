@@ -43,7 +43,10 @@ export default function EditorDemo(props) {
         groups,
         setGroups,
         updateGroups,
-        editorLocalData
+        editorLocalData,
+        editorLocalHistoryData,
+        handleSaveHistoryData,
+        setEditorLocalHistoryData,
     } = useEditorStore();
 
 
@@ -169,28 +172,29 @@ export default function EditorDemo(props) {
         if (selectedLinks) {
             handleDeleteLinks(selectedLinks);
         }
+        handleSaveHistory()
     };
     // 将节点上移一层或者下移一层
     const handleBringUp = () =>{
         if (selectedNodes) {
-            console.log("将节点上移一层",selectedNodes, nodes)
             selectedNodes.map((nodeId)=>{
                 const node = _.find(nodes, item => item.id === nodeId);
                 node.zIndex = node.zIndex?node.zIndex+1:1;
                 updateNodes(node)
                 return node;
             })
+            handleSaveHistory()
         }
     }
     const handleBringDown = () =>{
         if (selectedNodes) {
-            console.log("将节点下移一层",selectedNodes)
             selectedNodes.map((nodeId)=>{
                 const node = _.find(nodes, item => item.id === nodeId);
                 node.zIndex = node.zIndex?node.zIndex-1:1;
                 updateNodes(node)
                 return node;
             })
+            handleSaveHistory()
         }
     }
 
@@ -203,7 +207,6 @@ export default function EditorDemo(props) {
 
     // 预览
     const handlePreview = () => {
-        // // console.log("preview");
             var a = document.createElement("a");
             a.setAttribute("href", '/editor/preview');
             a.setAttribute("target", "_blank");
@@ -266,12 +269,15 @@ export default function EditorDemo(props) {
     const handleSave = async () => {
         const data = await handleSaveData();
 
-        console.log(editorLocalData);
         if (data) {
             message.success("保存成功");
         } else {
             message.error("保存失败");
         }
+    };
+    /** 保存历史 */
+    const handleSaveHistory =async () => {
+         const r =  await handleSaveHistoryData()
     };
 
     /** 计算选中节点的位置，形成大的group */
@@ -360,6 +366,7 @@ export default function EditorDemo(props) {
                 setGroups(newGroups);
             }
         }
+        handleSaveHistory()
     };
 
     /** 成组 */
@@ -376,8 +383,28 @@ export default function EditorDemo(props) {
         setSelectedNodes([]);
     };
     const handleUnGroup=()=>{
-        console.log("解组：",groups,selectedGroup)
-        updateGroupsInfo(selectedGroup.nodes,'merge',selectedGroup.id)
+        selectedGroup&&updateGroupsInfo(selectedGroup.nodes,'merge',selectedGroup.id)
+    }
+    const handleUndo=()=>{
+        if(editorLocalHistoryData.currentIndex>0){
+            const historyNode = editorLocalHistoryData.datas[editorLocalHistoryData.currentIndex-1].nodes
+            editorLocalHistoryData.currentIndex=editorLocalHistoryData.currentIndex-1
+            setNodes(historyNode)
+            setEditorLocalHistoryData(editorLocalHistoryData)
+        }else{
+           // setNodes([])
+        }
+    }
+    const handleRedo=()=>{
+        if(editorLocalHistoryData.currentIndex<editorLocalHistoryData.datas.length-1){
+            const historyNode = editorLocalHistoryData.datas[editorLocalHistoryData.currentIndex+1].nodes
+            editorLocalHistoryData.currentIndex=editorLocalHistoryData.currentIndex+1
+            setNodes(historyNode)
+            setEditorLocalHistoryData(editorLocalHistoryData)
+        }else{
+            // const historyNode = editorLocalHistoryData.datas[0].nodes
+            // setNodes(historyNode)
+        }
     }
 
     useKeyPress(
@@ -472,7 +499,9 @@ export default function EditorDemo(props) {
                     "ungroup",
                     "preview",
                     "bringUp",
-                    "bringDown"
+                    "bringDown",
+                    "undo",
+                    "redo"
                 ]}
                 onCopy={handleCopy}
                 onPaste={handlePaste}
@@ -487,6 +516,8 @@ export default function EditorDemo(props) {
                 onPreview={handlePreview}
                 onBringUp={handleBringUp}
                 onBringDown={handleBringDown}
+                onUndo={handleUndo}
+                onRedo={handleRedo}
             />
         </div>
     );
@@ -537,6 +568,7 @@ export default function EditorDemo(props) {
                 setCurrTrans={setCurrTrans}
                 isKeyPressing={keyPressing}
                 updateGroups={updateGroupsInfo}
+                onSaveHistory={handleSaveHistory}
             />
         </div>
     );

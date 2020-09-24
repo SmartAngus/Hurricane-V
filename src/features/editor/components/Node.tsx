@@ -9,7 +9,7 @@ import {Icon} from 'antd'
 import { useResize } from "../hooks/useResize";
 import "./Node.scss";
 import {BaseCompStyle, EChart} from '../constants/defines'
-const { useRef, useState, useEffect, useCallback } = React;
+const { useRef, useState, useEffect } = React;
 
 class NodeProps {
   /** 节点id */
@@ -209,7 +209,6 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
       })}
     </div>
   );
-
   useEffect(() => {
     onResize(resizeWidth, resizeHeight, resizeX, resizeY);
   }, [resizeWidth, resizeHeight, resizeX, resizeY]);
