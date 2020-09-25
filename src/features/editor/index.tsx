@@ -137,7 +137,6 @@ export default function EditorDemo(props) {
     // 复制
     const handleCopy = () => {
         if (selectedNodes) {
-            console.log("selectedNodes,",selectedNodes)
             handleNodesCopy(_.compact(selectedNodes));
         }
     };
@@ -146,6 +145,10 @@ export default function EditorDemo(props) {
     const handlePaste = () => {
         if (copiedNodes) {
             handleNodesPaste();
+            _getSelectedRealNodes().map(node=>{
+                nodes.push(node)
+            })
+            handleSaveHistory()
         }
     };
 
@@ -198,8 +201,113 @@ export default function EditorDemo(props) {
         }
     }
 
+    const _getSelectedRealNodes = ()=>{
+        return selectedNodes.map((nodeId)=>{
+            const node = _.find(nodes, item => item.id === nodeId);
+            return node;
+        })
+    }
+
+    // 左侧对齐
+    const handleLeftJustify = ()=>{
+        if (selectedNodes) {
+            // 只有一个元素就不处理
+            if(selectedNodes.length==1) return;
+            const selectedRealNodes = _getSelectedRealNodes()
+            selectedRealNodes.map((currNode,index)=>{
+                if (index>0){
+                    currNode.x=selectedRealNodes[0].x;
+                    updateNodes(currNode)
+                }
+                return currNode;
+            })
+            handleSaveHistory()
+        }
+    }
+    // 水平居中
+    const handleHorizontallyJustify = ()=>{
+        if (selectedNodes) {
+            // 只有一个元素就不处理
+            if(selectedNodes.length==1) return;
+            const selectedRealNodes = _getSelectedRealNodes()
+            selectedRealNodes.map((currNode,index)=>{
+                if (index>0){
+                    currNode.x=selectedRealNodes[0].x+Math.round(selectedRealNodes[0].width/2)-Math.round(currNode.width/2);
+                    updateNodes(currNode)
+                }
+                return currNode;
+            })
+            handleSaveHistory()
+        }
+    }
+    // 右侧对齐
+    const handleRightJustify = ()=>{
+        if (selectedNodes) {
+            // 只有一个元素就不处理
+            if(selectedNodes.length==1) return;
+            const selectedRealNodes = _getSelectedRealNodes()
+            selectedRealNodes.map((currNode,index)=>{
+                if (index>0){
+                    currNode.x=selectedRealNodes[0].x+selectedRealNodes[0].width-currNode.width;
+                    updateNodes(currNode)
+                }
+                return currNode;
+            })
+            handleSaveHistory()
+        }
+    }
+    // 顶部对齐
+    const handleTopJustify = ()=>{
+        if (selectedNodes) {
+            // 只有一个元素就不处理
+            if(selectedNodes.length==1) return;
+            const selectedRealNodes = _getSelectedRealNodes()
+            selectedRealNodes.map((currNode,index)=>{
+                if (index>0){
+                    currNode.y=selectedRealNodes[0].y;
+                    updateNodes(currNode)
+                }
+                return currNode;
+            })
+            handleSaveHistory()
+        }
+    }
+    // 垂直居中
+    const handleVerticallyJustify = ()=>{
+        if (selectedNodes) {
+            // 只有一个元素就不处理
+            if(selectedNodes.length==1) return;
+            const selectedRealNodes = _getSelectedRealNodes()
+            selectedRealNodes.map((currNode,index)=>{
+                if (index>0){
+                    currNode.y=selectedRealNodes[0].y+Math.round(selectedRealNodes[0].height/2)-Math.round(currNode.height/2);
+                    updateNodes(currNode)
+                }
+                return currNode;
+            })
+            handleSaveHistory()
+        }
+    }
+    // 底部对齐
+    const handleBottomJustify = ()=>{
+        if (selectedNodes) {
+            // 只有一个元素就不处理
+            if(selectedNodes.length==1) return;
+            const selectedRealNodes = _getSelectedRealNodes()
+            selectedRealNodes.map((currNode,index)=>{
+                if (index>0){
+                    currNode.y=selectedRealNodes[0].y-currNode.height+selectedRealNodes[0].height;
+                    updateNodes(currNode)
+                }
+                return currNode;
+            })
+            handleSaveHistory()
+        }
+    }
+
     // 圈选
     const handleDragSelect = () => {
+        console.log('圈选')
         setDragSelectable(!dragSelectable);
     };
 
@@ -230,6 +338,7 @@ export default function EditorDemo(props) {
                 id: node.id
             };
         });
+        console.log("selectorProps==",selectorProps)
 
         // 2. 多边形各个点转化为数组，暂时为矩形，后面考虑其他形状
         let poly = [];
@@ -278,6 +387,7 @@ export default function EditorDemo(props) {
     /** 保存历史 */
     const handleSaveHistory =async () => {
          const r =  await handleSaveHistoryData()
+        console.log(editorLocalHistoryData)
     };
 
     /** 计算选中节点的位置，形成大的group */
@@ -501,7 +611,13 @@ export default function EditorDemo(props) {
                     "bringUp",
                     "bringDown",
                     "undo",
-                    "redo"
+                    "redo",
+                    "leftJustify",
+                    "horizontallyJustify",
+                    "rightJustify",
+                    "topJustify",
+                    "verticallyJustify",
+                    "bottomJustify"
                 ]}
                 onCopy={handleCopy}
                 onPaste={handlePaste}
@@ -518,6 +634,12 @@ export default function EditorDemo(props) {
                 onBringDown={handleBringDown}
                 onUndo={handleUndo}
                 onRedo={handleRedo}
+                onLeftJustify={handleLeftJustify}
+                onVerticallyJustify={handleVerticallyJustify}
+                onTopJustify={handleTopJustify}
+                onRightJustify={handleRightJustify}
+                onBottomJustify={handleBottomJustify}
+                onHorizontallyJustify={handleHorizontallyJustify}
             />
         </div>
     );

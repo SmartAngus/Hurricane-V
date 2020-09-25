@@ -70,7 +70,6 @@ export default function DragSeletor(props: DragSeletorProps) {
     const width = getWidth(screen);
     const height = getHeight(screen);
     const position = getPosition(screen) as { x: number; y: number };
-
     return (
       <svg
         ref={dragSelectContainerRef}

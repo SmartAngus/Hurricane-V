@@ -33,12 +33,11 @@ export default function useDragSelect(dragSelectContainerRef: any, shape: Shape)
       const newY = event.layerY;
       const newWidth = Math.abs(newX - mousdownX.current);
       const newHeight = Math.abs(newY - mousdownY.current);
-
       const diffX = newX - mousdownX.current;
-
+      // 考虑svg的transform偏移量
       const newShapeProps = {
-        x: mousdownX.current,
-        y: mousdownY.current,
+        x: mousdownX.current-event.layerX+event.offsetX,
+        y: mousdownY.current-event.layerY+event.offsetY,
         width: newWidth,
         height: newHeight,
         direction: diffX < 0 ? 'right' : 'left',
@@ -69,10 +68,9 @@ export default function useDragSelect(dragSelectContainerRef: any, shape: Shape)
   const handleMouseDown = useCallback(
     event => {
       event.stopPropagation();
-
       mousdownX.current = event.layerX;
       mousdownY.current = event.layerY;
-
+        console.log(event)
       dragSelectContainerRef.current.addEventListener('mousemove', handleMouseMove);
       dragSelectContainerRef.current.addEventListener('mouseup', handleMouseUp);
     },

@@ -13,6 +13,7 @@ import {
 } from "../utils/FullsreenUtils";
 import { MIN_SCALE, MAX_SCALE } from "../constants/defines";
 import "./Toolbar.scss";
+import {LeftJustifyingIcon} from '../icons/editorIcons'
 
 /** 操作面板，支持全屏、缩放、自适应画布、格式化、显示比例 */
 
@@ -29,14 +30,19 @@ export type ToolbarType =
   | "delete"
   | "dragSelect"
   | "layout"
-  | "adapt"
   | "group"
   | "ungroup"
   | "preview"
   | "bringUp"
   | "undo"
   | "redo"
-  | "bringDown";
+  | "bringDown"
+  | "leftJustify"
+  | "horizontallyJustify"
+  | "rightJustify"
+  | "topJustify"
+  | "verticallyJustify"
+  | "bottomJustify";
 
 export class ToolbarProps {
   /** 适应画布 */
@@ -84,6 +90,18 @@ export class ToolbarProps {
 
   onUndo?:()=>void;
 
+  onLeftJustify?:()=>void;
+
+  onHorizontallyJustify?:()=>void;
+
+  onRightJustify?:()=>void;
+
+  onTopJustify?:()=>void;
+
+  onVerticallyJustify?:()=>void;
+
+  onBottomJustify?:()=>void;
+
   /** 处理全屏 */
   // handleFullScreen?: () => void;
   /** Toolbar选项 */
@@ -114,6 +132,12 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
     onBringUp,
     onRedo,
     onUndo,
+    onLeftJustify,
+    onHorizontallyJustify,
+    onRightJustify,
+    onTopJustify,
+    onVerticallyJustify,
+    onBottomJustify
   } = props;
   const scale = String(Math.round(screenScale));
 
@@ -159,6 +183,18 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
   const isUndo = items.includes("undo")
 
   const isRedo = items.includes("redo")
+
+  const isLeftJustify = items.includes("leftJustify");
+
+  const isHorizontallyJustify = items.includes("horizontallyJustify");
+
+  const isRightJustify = items.includes("rightJustify");
+
+  const isTopJustify = items.includes("topJustify");
+
+  const isVerticallyJustify = items.includes("verticallyJustify");
+
+  const isBottomJustify = items.includes("bottomJustify");
 
   /** 当前是否是全屏状态 */
 
@@ -356,6 +392,54 @@ const Toolbar = React.forwardRef((props: ToolbarProps, ref: any) => {
               <Tooltip title="恢复">
                 <Icon type="redo" />
                 <span className="toolbar-btn-text">恢复</span>
+              </Tooltip>
+            </div>
+        )}
+        {isLeftJustify && (
+            <div className="toolbar-btn" onClick={onLeftJustify} >
+              <Tooltip title="左侧对齐">
+                <LeftJustifyingIcon />
+                <span className="toolbar-btn-text">左侧对齐</span>
+              </Tooltip>
+            </div>
+        )}
+        {isHorizontallyJustify && (
+            <div className="toolbar-btn" onClick={onHorizontallyJustify} >
+              <Tooltip title="水平居中">
+                <LeftJustifyingIcon />
+                <span className="toolbar-btn-text">水平居中</span>
+              </Tooltip>
+            </div>
+        )}
+        {isRightJustify && (
+            <div className="toolbar-btn" onClick={onRightJustify} >
+              <Tooltip title="右侧对齐">
+                <LeftJustifyingIcon />
+                <span className="toolbar-btn-text">右侧对齐</span>
+              </Tooltip>
+            </div>
+        )}
+        {isTopJustify && (
+            <div className="toolbar-btn" onClick={onTopJustify} >
+              <Tooltip title="顶部对齐">
+                <LeftJustifyingIcon />
+                <span className="toolbar-btn-text">顶部对齐</span>
+              </Tooltip>
+            </div>
+        )}
+        {isVerticallyJustify && (
+            <div className="toolbar-btn" onClick={onVerticallyJustify} >
+              <Tooltip title="垂直居中">
+                <LeftJustifyingIcon />
+                <span className="toolbar-btn-text">垂直居中</span>
+              </Tooltip>
+            </div>
+        )}
+        {isBottomJustify && (
+            <div className="toolbar-btn" onClick={onBottomJustify} >
+              <Tooltip title="底部对齐">
+                <LeftJustifyingIcon />
+                <span className="toolbar-btn-text">底部对齐</span>
               </Tooltip>
             </div>
         )}
