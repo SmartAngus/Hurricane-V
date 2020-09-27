@@ -29,6 +29,8 @@ export class CanvasContentProps {
     setCurrTrans: (transform: ZoomTransform) => void;
     /** 是否被按住 */
     isKeyPressing: boolean;
+    // 面板背景大小设置
+    canvasStyle?:any
 }
 
 export class CanvasContentState {
@@ -80,6 +82,4 @@ export class CanvasContentState {
     deleteVisible: boolean;
     /**当前选中节点*/
     currentSelectedNode: Node;
-    /**面板的基本属性*/
-    defaultCavasProps: any;
 }

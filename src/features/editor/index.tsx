@@ -8,18 +8,21 @@ import CanvasContent from "./common/CanvasContent";
 import { useEditorStore, useKeyPress, useEventListener } from "./hooks";
 import { ShapeProps } from "./utils/useDragSelect";
 import { pointInPoly } from "./utils/layout";
-import { GROUP_PADDING, Node, Group } from "./constants/defines";
+import { GROUP_PADDING, Node, Group,defaultCanvasProps,ThemeContext } from "./constants/defines";
 import RenderPropertySidebar from "./common/RenderPropertySidebar";
 
 
 import "./index.scss";
 
-const { useState, useRef, useEffect } = React;
+const { useState, useRef, useEffect,useContext } = React;
+
 
 export default function EditorDemo(props) {
     const [screenScale, changeScreenScale] = useState(100);
     const [dragSelectable, setDragSelectable] = useState(false);
     const [keyPressing, setKeyPressing] = useState(false);
+    const context = useContext(ThemeContext)
+    console.log("context",context)
     const {
         nodes,
         links,
@@ -47,6 +50,9 @@ export default function EditorDemo(props) {
         editorLocalHistoryData,
         handleSaveHistoryData,
         setEditorLocalHistoryData,
+        canvasProps,
+        setCanvasProps,
+        handleAutoSaveSettingInfo
     } = useEditorStore();
 
 
@@ -338,8 +344,6 @@ export default function EditorDemo(props) {
                 id: node.id
             };
         });
-        console.log("selectorProps==",selectorProps)
-
         // 2. 多边形各个点转化为数组，暂时为矩形，后面考虑其他形状
         let poly = [];
         if (selectorProps.direction === "left") {
@@ -563,25 +567,6 @@ export default function EditorDemo(props) {
         },
         canvasInstance
     );
-    // // 重新定义handleResizeTo
-    // const handleResizeTo = (scale) => {
-    //     // // console.log(canvasInstance.container)
-    //     //// // console.log(scale)
-    //     canvasInstance.container.current.style.transform = `translate(500px, 400px) scale(${scale})`
-    //     getSvgContainerSize()
-    // }
-    // // 画布的放大缩小handleScreenResizeTo
-    // const handleScreenResizeTo = (scale) => {
-    //     // // console.log(canvasInstance.container)
-    //     // // console.log(scale)
-    //     canvasInstance.container.current.style.transform = `translate(500px, 400px) scale(${scale})`
-    //     getSvgContainerSize()
-    // }
-    // 获取svgContainer的大小
-    const getSvgContainerSize = () => {
-        let svgRect = canvasInstance.svgContainer.current.getBoundingClientRect()
-        // // console.log(svgRect)
-    }
     /** 操作区 */
     const renderOperation = (
         <div>
@@ -691,17 +676,26 @@ export default function EditorDemo(props) {
                 isKeyPressing={keyPressing}
                 updateGroups={updateGroupsInfo}
                 onSaveHistory={handleSaveHistory}
+                canvasStyle={canvasProps}
             />
         </div>
     );
     return (
-        <div className="editor-demo" ref={screenRef}>
-            <div className="editor-operation">{renderOperation}</div>
-            <div className="editor-container">
-                {renderNodePanel}
-                {renderCanvas}
-                <RenderPropertySidebar selectedNodes={selectedNodes} nodes={nodes} updateNodes={updateNodes}/>
-            </div>
-        </div>
+        <ThemeContext.Provider value={defaultCanvasProps}>
+            <ThemeContext.Consumer>
+                {(context)=>{
+                    return (
+                        <div className="editor-demo" ref={screenRef}>
+                            <div className="editor-operation">{renderOperation}</div>
+                            <div className="editor-container">
+                                {renderNodePanel}
+                                {renderCanvas}
+                                <RenderPropertySidebar selectedNodes={selectedNodes} canvasProps={canvasProps}  setCanvasProps={setCanvasProps} nodes={nodes} updateNodes={updateNodes} autoSaveSettingInfo={handleAutoSaveSettingInfo} />
+                            </div>
+                        </div>
+                    )
+                }}
+            </ThemeContext.Consumer>
+        </ThemeContext.Provider>
     );
 }

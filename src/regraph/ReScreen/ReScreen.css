@@ -52,3 +52,6 @@ rect {
 .screen-animation > div > * {
   transition: 0.3s all linear;
 }
+.screen-animation-wh {
+  transition: 0.3s all linear;
+}

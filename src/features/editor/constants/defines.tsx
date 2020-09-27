@@ -369,3 +369,18 @@ export enum OperateType {
     copy = "copy",
     delete = "delete"
 }
+
+export const defaultCanvasProps = {// 定义面板的默认属性
+    width: 1366,
+    height:768,
+    backgroundColor: "rgb(110, 134, 160)",
+    backgroundImage: null,
+    grid:{
+        size: 20,
+        color: "",
+        url:'',// 网格图片的路径
+    },
+    password:null
+}
+export const ThemeContext = React.createContext(defaultCanvasProps);
+

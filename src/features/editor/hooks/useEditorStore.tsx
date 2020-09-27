@@ -15,8 +15,9 @@ export function useEditorStore() {
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<Group>(undefined);
   const [editorLocalData, setEditorLocalData] = useLocalStorage("editorData", {
-    id: "editorData-test"
+    id: "editorData-local"
   });
+  const [canvasProps, setCanvasProps] = useState({})
   const [editorLocalHistoryData,setEditorLocalHistoryData]= useLocalStorage("editorDataHistory", {
     id: "editorData-history",
     currentIndex:0,
@@ -47,6 +48,7 @@ export function useEditorStore() {
     });
     setGroups(newGroups);
     setLinks(editorLocalData?.links ?? []);
+    setCanvasProps(editorLocalData?.canvasProps ?? {});
   }, [editorLocalData]);
 
   const updateNodes = (node: Node) => {
@@ -101,10 +103,23 @@ export function useEditorStore() {
       ...(editorData as any),
       nodes: newNodes,
       groups: newGroups,
-      links
+      links,
+      canvasProps
     });
     return result;
   };
+  // 自动保存面板属性设置，比如更改了页面尺寸，背景图片，网格信息，以便在用户浏览器刷新后恢复原样
+  const handleAutoSaveSettingInfo = async (newCanvasProps:any)=>{
+    const result = await setEditorLocalData({
+      ...(editorData as any),
+      ...nodes,
+      ...groups,
+      ...links,
+      canvasProps:newCanvasProps
+    });
+    return result;
+  }
+
   const isObjectValueEqual = (a, b)=>{
     // 判断两个对象是否指向同一内存，指向同一内存返回true
     if(a==undefined||b==undefined) return true
@@ -198,5 +213,8 @@ export function useEditorStore() {
     editorLocalHistoryData,
     setEditorLocalHistoryData,
     handleSaveHistoryData,
+    canvasProps,
+    setCanvasProps,
+    handleAutoSaveSettingInfo
   };
 }

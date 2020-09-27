@@ -17,6 +17,7 @@
     "@types/react-router-config": "^5.0.1",
     "@types/react-router-dom": "^5.1.5",
     "antd": "3.26.12",
+    "bici-datav": "^0.3.0",
     "classnames": "2.2.2",
     "d3-zoom": "^1.8.3",
     "dagre": "^0.8.5",

@@ -22,7 +22,8 @@ import {
   Group,
   NODE_WIDTH,
   NODE_HEIGHT,
-  LINK_AREA
+  LINK_AREA,
+  ThemeContext,
 } from "../constants/defines";
 import {
   findUpstreamNode,
@@ -81,19 +82,7 @@ export default class CanvasContent extends React.Component<
       sourcePos: "",
       currentHoverNode: "",
       deleteVisible: false,
-      currentSelectedNode: null,
-      defaultCavasProps: {// 定义面板的默认属性
-        width: 1366,
-        height:768,
-        backgroundColor: "red",
-        backgroundImage: null,
-        grid:{
-          size: 20,
-          color: "red",
-          url:'',// 网格图片的路径
-        },
-        password:null
-      }
+      currentSelectedNode: null
     };
     this.nodesContainerRef = React.createRef();
     this.container = React.createRef();
@@ -705,7 +694,7 @@ export default class CanvasContent extends React.Component<
   };
   // 获得画布缩放移动信息
   getTransformInfo = (currTrans: ZoomTransform) => {
-    // // console.log(currTrans)
+     console.log("getTransformInfo",currTrans)
     this.props.setCurrTrans(currTrans);
   };
 
@@ -1102,63 +1091,80 @@ export default class CanvasContent extends React.Component<
 
   render() {
     const { deleteVisible, menuPos } = this.state;
+    const {canvasStyle}=this.props;
+    let isUseContext = false;
+    if (JSON.stringify(canvasStyle)=='{}'){
+      isUseContext = true;
+    }
+
     return (
-      <div className="canvas-container-content" ref={this.container}>
-        <svg className="svg-caves" ref={this.svgContainer}></svg>
-        <ReScreen
-          type="DOM"
-          getScreenHandler={this.getScreenHandler}
-          needMinimap={false}
-          needRefresh={true}
-          zoomEnabled={false}
-          svgContainer={this.svgContainer}
-          dragDirection="NONE"
-          mapPosition="RT-IN"
-          mapWidth={200}
-          mapHeight={300}
-          height={this.state.defaultCavasProps.height}
-          width={this.state.defaultCavasProps.width}
-          mapRectStyle={{
-            stroke: "#468CFF",
-            fill: "transparent",
-            strokeWidth: 1.5
-          }}
-          focusEnabled={2}
-          onScreenChange={this.getTransformInfo}
-          onDragOver={event => {
-            event.preventDefault();
-          }}
-          onDrop={this.onDrop.bind(this)}
-        >
-          {this.renderCanvas()}
-        </ReScreen>
-        {/** 删除连线的菜单 */}
-        <ContextMenu
-          visible={deleteVisible}
-          // onHide={() => {
-          //   this.props.setLinks(null);
-          //   this.setState({
-          //     deleteVisible: false
-          //   });
-          // }}
-          left={menuPos.x}
-          top={menuPos.y}
-          // onClick={this.handleDeleteLinks.bind(this, selectedLinks)}
-        >
-          <Menu
-            getPopupContainer={(triggerNode: any) => triggerNode.parentNode}
-          >
-            {[
-              {
-                name: "删除",
-                key: OperateType.delete
-              }
-            ].map(child => {
-              return <Menu.Item key={child.key}>{child.name}</Menu.Item>;
-            })}
-          </Menu>
-        </ContextMenu>
-      </div>
+      <ThemeContext.Consumer>
+        {(context)=>{
+          const cp = isUseContext?context:canvasStyle
+          return (
+              <div className="canvas-container-content" ref={this.container}>
+                <svg className="svg-caves" ref={this.svgContainer}></svg>
+                <ReScreen
+                    type="DOM"
+                    getScreenHandler={this.getScreenHandler}
+                    needMinimap={false}
+                    needRefresh={true}
+                    zoomEnabled={false}
+                    svgContainer={this.svgContainer}
+                    dragDirection="NONE"
+                    mapPosition="RT-IN"
+                    mapWidth={200}
+                    mapHeight={300}
+                    height={cp.height}
+                    width={cp.width}
+                    screenHeight={cp.height}
+                    screenWidth={cp.width}
+                    backgroundColor={cp.backgroundColor}
+                    backgroundImage={cp.backgroundImage}
+                    mapRectStyle={{
+                      stroke: "#468CFF",
+                      fill: "transparent",
+                      strokeWidth: 1.5
+                    }}
+                    focusEnabled={2}
+                    onScreenChange={this.getTransformInfo}
+                    onDragOver={event => {
+                      event.preventDefault();
+                    }}
+                    onDrop={this.onDrop.bind(this)}
+                >
+                  {this.renderCanvas()}
+                </ReScreen>
+                {/** 删除连线的菜单 */}
+                <ContextMenu
+                    visible={deleteVisible}
+                    // onHide={() => {
+                    //   this.props.setLinks(null);
+                    //   this.setState({
+                    //     deleteVisible: false
+                    //   });
+                    // }}
+                    left={menuPos.x}
+                    top={menuPos.y}
+                    // onClick={this.handleDeleteLinks.bind(this, selectedLinks)}
+                >
+                  <Menu
+                      getPopupContainer={(triggerNode: any) => triggerNode.parentNode}
+                  >
+                    {[
+                      {
+                        name: "删除",
+                        key: OperateType.delete
+                      }
+                    ].map(child => {
+                      return <Menu.Item key={child.key}>{child.name}</Menu.Item>;
+                    })}
+                  </Menu>
+                </ContextMenu>
+              </div>
+          )
+        }}
+      </ThemeContext.Consumer>
     );
   }
 }

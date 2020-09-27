@@ -41,6 +41,8 @@ class Props {
   /** 组件整体的尺寸，支持传入百分数 */
   height?: number | string;
   width?: number | string;
+  backgroundColor?:string;
+  backgroundImage?:string;
   /** 是否启动鼠标滚动缩放画布，默认为true */
   zoomEnabled?: boolean;
   /** 是否启动聚焦功能，0表示不启动，1表示单击触发，2表示双击触发 */
@@ -83,6 +85,8 @@ class Props {
   getScreenHandler?: (params: ButtonsProps) => void;
   /** 对外暴露控制容器的高度 */
   screenHeight?: number | string;
+  screenWidth?:number | string;
+
   /** scale 限制 */
   scaleExtent?: [number, number];
   /** translate 限制 */
@@ -737,7 +741,6 @@ export default class ReScreen extends React.Component<Props, State> {
               screenToMapTransform,
               transform
             })}
-        >
       </div>
     );
   }
@@ -831,8 +834,8 @@ export default class ReScreen extends React.Component<Props, State> {
   }
   // 渲染画布内容
   renderScreenContent() {
-    const { type, screenHeight } = this.props;
-    const width = this.screenWidth || '100%';
+    const { type, screenHeight,screenWidth,backgroundColor,backgroundImage } = this.props;
+    const width = screenWidth ? screenWidth : this.screenWidth || '100%';
     const height = screenHeight ? screenHeight : this.screenHeight || '100%';
 
     if (type === 'SVG') {
@@ -857,7 +860,8 @@ export default class ReScreen extends React.Component<Props, State> {
     } else if (type === 'DOM') {
       return (
         <div
-          style={{ width, height, overflow: 'hidden' }}
+          className="screen-animation-wh"
+          style={{ width, height, overflow: 'hidden',backgroundColor,backgroundImage }}
           ref={(ele: any) => {
             if (this.screen) {
               return;

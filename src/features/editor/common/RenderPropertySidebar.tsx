@@ -1,9 +1,10 @@
-import React,{ useRef,useState } from 'react'
-import { Tabs, Collapse, Select, Input, Tooltip, Icon,InputNumber, Button } from 'antd'
+import React,{ useRef,useState,useContext } from 'react'
+import { Tabs, Collapse, Select, Input, Tooltip, Icon,InputNumber, Button,Radio } from 'antd'
 import * as _ from 'lodash'
 import ColorsPicker from './ColorsPicker'
 import "../components/NodePanel.scss";
 import "./RenderPropertySidebar.scss"
+import { ThemeContext } from "../constants/defines";
 
 
 
@@ -18,22 +19,29 @@ export class OptionsProperty  {
     selectedNodes?:any;
     nodes?:any;
     updateNodes?:any;
+    setCanvasProps?:any;
+    // 看版样式
+    canvasProps?:any;
+    autoSaveSettingInfo?:(canvasProps:any)=>void
 }
 // 定义页面尺寸
 const pageSizes = [
-    {key:'1060*520',text:'1060*520(推荐)',width:1060,height:520},
+    {key:'1060*520',text:'1060*520',width:1060,height:520},
     {key:'1920*1080',text:'1920*1080',width:1920,height:1080},
     {key:'1440*900',text:'1440*900',width:1440,height:900},
     {key:'1366*768',text:'1366*768',width:1366,height:768},
-    {key:'self',text:'自定义',width:null,height:null},
 ]
 
 const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     const sidebarRef = useRef(null)
-    const {selectedNodes,nodes,updateNodes} = props;
+    const defaultCanvasProps = useContext(ThemeContext)
+    console.log(defaultCanvasProps)
+    const {selectedNodes,nodes,updateNodes,canvasProps,setCanvasProps,autoSaveSettingInfo} = props;
     const [isSelf,setIsSelf] = useState(false)
     let isCompSetting= false
     let isSetting = false
+    console.log("首次加载cavas==",canvasProps)
+    // setCanvasProps(defaultCanvasProps)
 
     // 存的是node的id，是一个数组
     // // console.log("selectedNodes==",selectedNodes)
@@ -50,6 +58,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     // 切换tab发生的回掉函数
     const onTabChange = () => {
         // // console.log("onTabChange")
+
     }
     const collapseKey = () => {
 
@@ -64,6 +73,32 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         }else{
             setIsSelf(false)
         }
+    }
+    const handleCanvasChange = (value) => {
+        console.log(`selected ${value}`);
+        const canvasSize = _.find(pageSizes,s=>s.key===value)
+        defaultCanvasProps.height=canvasSize.height;
+        defaultCanvasProps.width=canvasSize.width;
+        setCanvasProps(defaultCanvasProps)
+        console.log(defaultCanvasProps)
+        autoSaveSettingInfo(defaultCanvasProps)
+
+        if(value === 'self'){
+            setIsSelf(true)
+        }else{
+            setIsSelf(false)
+        }
+    }
+    //屏幕尺寸变化
+    const onCanvasWChange=(value)=>{
+        defaultCanvasProps.width=value;
+        setCanvasProps(defaultCanvasProps)
+        autoSaveSettingInfo(defaultCanvasProps)
+    }
+    const onCanvasHChange=(value)=>{
+        defaultCanvasProps.height=value;
+        setCanvasProps(defaultCanvasProps)
+        autoSaveSettingInfo(defaultCanvasProps)
     }
     // 位置和尺寸改变
     const onInputPositionXChange = (value)=>{node.x = value;updateNodes(node)}
@@ -87,43 +122,56 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     const renderPageSetting = ()=>{
             return (
                 <>
-                <h3>页面设置</h3>
+                <h3 style={{borderBottom:'2px solid #ccc',paddingBottom:10}}>页面设置</h3>
+                <div className="self-setting-size">
+                    <span>
+                        <p>W</p>
+                        <InputNumber min={640} max={1920} value={canvasProps.width} onChange={onCanvasWChange} />
+                    </span>
+                    <span>
+                        <p>H</p>
+                        <InputNumber min={480} max={1080} value={canvasProps.height} onChange={onCanvasHChange} />
+                    </span>
+                    <span><p>&nbsp;</p><Button type="link" icon="retweet"/></span>
+                </div>
                 <Collapse
                     defaultActiveKey={['1']}
                     onChange={handleCollapseKey}
                     bordered={true}
                     accordion={false}
                 >
-                    <Panel header="页面尺寸" key="1">
-                        <div className="components-box">
-                            <Select style={{width:'100%'}} defaultValue="1366*768" onChange={handleChange}>
-                                {pageSizes&&pageSizes.map((item,key)=>{
-                                    return   <Option value={item.key} key={key}>{item.text}</Option>
-                                })}
-                            </Select>
-                            {isSelf&&(
-                                <div style={{marginTop:12}}>
-                                    <InputNumber
-                                        style={{width:110,float:'left',marginRight:20}}
-                                        defaultValue={1024}
-                                        min={1024}
-                                        max={1960}
-                                        formatter={value => `W ${value}`}
-                                        parser={value => value.replace('W', '')}
-                                        onChange={onInputChange}
-                                    />
-                                    <InputNumber
-                                        style={{width:110}}
-                                        defaultValue={640}
-                                        min={640}
-                                        max={1080}
-                                        formatter={value => `H ${value}`}
-                                        parser={value => value.replace('H', '')}
-                                        onChange={onInputChange}
-                                    />
+                    <Panel header="预设尺寸" key="1">
+                        <ul className="bant-list-items">
+                            <li className="bant-list-item">
+                                <div className="bant-list-item-extra">
+                                    <div className="preview-box"></div>
                                 </div>
-                            )}
-                        </div>
+                                <div className="bant-list-item-main">
+                                    <div className="bant-list-item-meta"><h3>16:9</h3></div>
+                                    <div className="bant-list-item-meta-content">
+                                            {pageSizes.map((size,key)=>{
+                                                return <a
+                                                    onClick={()=>handleCanvasChange(size.key)}
+                                                    key={key}
+                                                    className="canvas-size-row">{size.text}</a>
+                                            })}
+                                    </div>
+                                </div>
+                            </li>
+                            <li className="bant-list-item">
+                                <div className="bant-list-item-extra">
+                                    <div className="preview-box"></div>
+                                </div>
+                                <div className="bant-list-item-main">
+                                    <div className="bant-list-item-meta"><h3>16:9</h3></div>
+                                    <div className="bant-list-item-meta-content">
+                                        {pageSizes.map((size,key)=>{
+                                            return <a  key={key} className="canvas-size-row">{size.text}</a>
+                                        })}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
                     </Panel>
                     <Panel header="背景" key="2">
                         <div className="components-box">
@@ -247,6 +295,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
             </Tabs>
         )
     }
+
     return (
         <div className="editor-property">
             {isSetting&&renderPageSetting()}
