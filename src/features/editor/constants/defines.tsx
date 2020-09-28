@@ -375,8 +375,10 @@ export const defaultCanvasProps = {// 定义面板的默认属性
     height:768,
     backgroundColor: "rgb(110, 134, 160)",
     backgroundImage: null,
+    backgroundImageKey:null,
     grid:{
-        size: 20,
+        show:false,
+        size: 10,
         color: "",
         url:'',// 网格图片的路径
     },

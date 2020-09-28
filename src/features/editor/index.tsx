@@ -690,7 +690,15 @@ export default function EditorDemo(props) {
                             <div className="editor-container">
                                 {renderNodePanel}
                                 {renderCanvas}
-                                <RenderPropertySidebar selectedNodes={selectedNodes} canvasProps={canvasProps}  setCanvasProps={setCanvasProps} nodes={nodes} updateNodes={updateNodes} autoSaveSettingInfo={handleAutoSaveSettingInfo} />
+                                <RenderPropertySidebar
+                                    selectedNodes={selectedNodes}
+                                    canvasProps={canvasProps}
+                                    setCanvasProps={setCanvasProps}
+                                    nodes={nodes}
+                                    groups={groups}
+                                    links={links}
+                                    updateNodes={updateNodes}
+                                    autoSaveSettingInfo={handleAutoSaveSettingInfo} />
                             </div>
                         </div>
                     )

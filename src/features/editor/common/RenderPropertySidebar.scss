@@ -16,7 +16,7 @@
     padding: 10px;
 
   }
-  .bant-list-items{
+  .bant-list-items,ul{
     margin: 0;
     padding: 0;
   }
@@ -82,4 +82,36 @@
   justify-content: space-between;
   margin-bottom: 20px;
   padding: 0 10px;
+}
+.preinstall-bg-img{
+  display: flex;
+  flex-direction: row;
+  .pre-mini-img{
+    width: 80px;
+    height: 60px;
+    margin: 0 3px;
+    img{
+      width: 80px;
+      height: 60px;
+    }
+    .pre-img-selected-icon{
+      position: relative;
+      right: -26px;
+      top: -58px;
+    }
+  }
+}
+.grid-setting{
+  display: flex;
+  align-items: center;
+  margin: 15px 0px;
+  align-content: space-between;
+  width: 100%;
+  line-height: 100%;
+  &>div{
+    display: inline-block;
+  }
+  &>div:last-child{
+    margin-left: 10px;
+  }
 }

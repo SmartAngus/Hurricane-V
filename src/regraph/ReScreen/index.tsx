@@ -43,6 +43,7 @@ class Props {
   width?: number | string;
   backgroundColor?:string;
   backgroundImage?:string;
+  grid?:any;
   /** 是否启动鼠标滚动缩放画布，默认为true */
   zoomEnabled?: boolean;
   /** 是否启动聚焦功能，0表示不启动，1表示单击触发，2表示双击触发 */
@@ -834,9 +835,13 @@ export default class ReScreen extends React.Component<Props, State> {
   }
   // 渲染画布内容
   renderScreenContent() {
-    const { type, screenHeight,screenWidth,backgroundColor,backgroundImage } = this.props;
+    const { type, screenHeight,screenWidth,grid } = this.props;
     const width = screenWidth ? screenWidth : this.screenWidth || '100%';
     const height = screenHeight ? screenHeight : this.screenHeight || '100%';
+    let backgroundImage = '';
+    if(grid.show){
+      backgroundImage = `url("data:image/svg+xml,${grid.url}")`
+    }
 
     if (type === 'SVG') {
       return React.cloneElement(this.props.children as React.ReactElement<any>, {
@@ -861,7 +866,7 @@ export default class ReScreen extends React.Component<Props, State> {
       return (
         <div
           className="screen-animation-wh"
-          style={{ width, height, overflow: 'hidden',backgroundColor,backgroundImage }}
+          style={{ width, height, backgroundImage, overflow: 'hidden'}}
           ref={(ele: any) => {
             if (this.screen) {
               return;
@@ -882,7 +887,7 @@ export default class ReScreen extends React.Component<Props, State> {
   }
 
   render() {
-    const { needMinimap, Buttons, width, height, mapWidth, mapHeight, mapPosition } = this.props;
+    const { needMinimap, Buttons, width, height, mapWidth, mapHeight, mapPosition,backgroundColor,backgroundImage  } = this.props;
 
     const className = this.state.animation ? 'screen screen-animation' : 'screen';
 
@@ -901,7 +906,7 @@ export default class ReScreen extends React.Component<Props, State> {
         onContextMenu={this.props.onContextMenu}
         onDrop={this.props.onDrop}
         onDragOver={this.props.onDragOver}>
-        <div className={className} ref={this.screenRef}>
+        <div className={className} ref={this.screenRef} style={{ backgroundColor, backgroundImage}}>
           {/* 绘制画布内容 */}
           {this.renderScreenContent()}
           {/* 绘制按钮控制 */}

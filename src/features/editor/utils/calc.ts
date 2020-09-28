@@ -204,4 +204,44 @@ export function getRotateAngle(cen, first, second) {
   }
 }
 
+class Coordinate {
+  x;
+  y;
+  constructor(x,y) {
+    this.x=x;
+    this.y=y;
+  }
+}
+
+
+/**
+ *
+ * @param a 正方形边长
+ * @param b 每一格的长度
+ * @param r 循环多
+ */
+export function getTwoDimen(a:number,b:number) {
+  const l = Math.floor(a/b)
+  // 初始化返回的二维数组
+  const r:Coordinate[]=[]
+  // for(let i=0;i<l;i++){
+  //   r[i*l]=new Coordinate(0,b*(i+1))
+  // }
+  // const temp = r.filter((item)=>item!=undefined)
+  // for(let j=0;j<temp.length;j++){
+  //   r[j*l+1]=new Coordinate(a,b*(j+1))
+  //   r[j*l+2]=new Coordinate(b*(j+1),0)
+  //   r[j*l+3]=new Coordinate(b*(j+1),a)
+  // }
+  for(let i=0;i<l;i++){
+      r.push(new Coordinate((i+1)*b,0))
+      r.push(new Coordinate((i+1)*b,a))
+  }
+  for(let i=0;i<l;i++){
+    r.push(new Coordinate(0,(i+1)*b))
+    r.push(new Coordinate(a,(i+1)*b,))
+  }
+  return r.filter((item)=>item!=undefined);
+}
+
 

@@ -109,14 +109,18 @@ export function useEditorStore() {
     return result;
   };
   // 自动保存面板属性设置，比如更改了页面尺寸，背景图片，网格信息，以便在用户浏览器刷新后恢复原样
-  const handleAutoSaveSettingInfo = async (newCanvasProps:any)=>{
+  const handleAutoSaveSettingInfo = async (canvasProps,nodes,groups,links)=>{
+    const newCanvasProps = canvasProps ?? {};
+    handleSaveData()
+    console.log("nodes===",nodes)
     const result = await setEditorLocalData({
       ...(editorData as any),
-      ...nodes,
-      ...groups,
-      ...links,
+      nodes:nodes,
+      groups: groups,
+      links: links,
       canvasProps:newCanvasProps
     });
+
     return result;
   }
 

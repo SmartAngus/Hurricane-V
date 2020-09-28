@@ -1,11 +1,16 @@
-import React,{ useRef,useState,useContext } from 'react'
-import { Tabs, Collapse, Select, Input, Tooltip, Icon,InputNumber, Button,Radio } from 'antd'
+import React,{ useRef,useState,useContext,useEffect } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server';
+import { Tabs, Collapse, Select, Input, Tooltip, Icon,InputNumber, Button,Radio, Checkbox } from 'antd'
 import * as _ from 'lodash'
 import ColorsPicker from './ColorsPicker'
 import "../components/NodePanel.scss";
 import "./RenderPropertySidebar.scss"
-import { ThemeContext } from "../constants/defines";
-
+import {Group, Link,Node, ThemeContext} from "../constants/defines";
+import preImage1 from '../../../assets/images/pre-image1.jpg'
+import preImage2 from '../../../assets/images/pre-image2.png'
+import preImage3 from '../../../assets/images/pre-image3.jpg'
+import UploadBgImg from "../components/uploadBgImg/UploadBgImg";
+import LeftJustifying,{GridBackgroundSVG} from "../icons/editorIcons";
 
 
 const { TabPane } = Tabs
@@ -17,12 +22,14 @@ export class OptionsProperty  {
     id?:number;
     name?:string;
     selectedNodes?:any;
-    nodes?:any;
+    nodes?:Node[];
+    groups?:Group[];
+    links?:Link[];
     updateNodes?:any;
     setCanvasProps?:any;
     // 看版样式
     canvasProps?:any;
-    autoSaveSettingInfo?:(canvasProps:any)=>void
+    autoSaveSettingInfo?:(canvasProps:any,nodes:Node[],groups:Group[],links:Link[])=>void
 }
 // 定义页面尺寸
 const pageSizes = [
@@ -31,16 +38,37 @@ const pageSizes = [
     {key:'1440*900',text:'1440*900',width:1440,height:900},
     {key:'1366*768',text:'1366*768',width:1366,height:768},
 ]
+const preImages = [
+    {key:1,img:preImage1},
+    {key:2,img:preImage2},
+    {key:3,img:preImage3},
+]
 
 const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     const sidebarRef = useRef(null)
     const defaultCanvasProps = useContext(ThemeContext)
-    console.log(defaultCanvasProps)
-    const {selectedNodes,nodes,updateNodes,canvasProps,setCanvasProps,autoSaveSettingInfo} = props;
+    const {selectedNodes,nodes,groups,links,updateNodes,canvasProps,setCanvasProps,autoSaveSettingInfo} = props;
     const [isSelf,setIsSelf] = useState(false)
+
+    const [gridSize,setGridSize]=useState(10)
+    let [showGrid,setShowGrid]=useState(false)
+
+    console.log("canvasProps===",canvasProps)
+
+    useEffect(()=>{
+        if(canvasProps&&canvasProps.grid){
+            setGridSize(canvasProps.grid.size)
+            setShowGrid(canvasProps.grid.show)
+        }
+    },[canvasProps])
+
+
+
     let isCompSetting= false
     let isSetting = false
-    console.log("首次加载cavas==",canvasProps)
+    // convert component to string useable in data-uri
+    let svgString = encodeURIComponent(renderToStaticMarkup(<GridBackgroundSVG strokeColor='red' />));
+    //svgString = btoa(svgString);
     // setCanvasProps(defaultCanvasProps)
 
     // 存的是node的id，是一个数组
@@ -67,7 +95,6 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
 
     }
     const handleChange = (value) => {
-        console.log(`selected ${value}`);
         if(value === 'self'){
             setIsSelf(true)
         }else{
@@ -75,30 +102,66 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         }
     }
     const handleCanvasChange = (value) => {
-        console.log(`selected ${value}`);
         const canvasSize = _.find(pageSizes,s=>s.key===value)
-        defaultCanvasProps.height=canvasSize.height;
-        defaultCanvasProps.width=canvasSize.width;
-        setCanvasProps(defaultCanvasProps)
-        console.log(defaultCanvasProps)
-        autoSaveSettingInfo(defaultCanvasProps)
-
-        if(value === 'self'){
-            setIsSelf(true)
-        }else{
-            setIsSelf(false)
-        }
+        canvasProps.height=canvasSize.height;
+        canvasProps.width=canvasSize.width;
+        setCanvasProps(canvasProps)
+        autoSaveSettingInfo(canvasProps,nodes,groups,links)
     }
     //屏幕尺寸变化
     const onCanvasWChange=(value)=>{
-        defaultCanvasProps.width=value;
-        setCanvasProps(defaultCanvasProps)
-        autoSaveSettingInfo(defaultCanvasProps)
+        canvasProps.width=value;
+        setCanvasProps(canvasProps)
+        autoSaveSettingInfo(canvasProps,nodes,groups,links)
     }
     const onCanvasHChange=(value)=>{
-        defaultCanvasProps.height=value;
-        setCanvasProps(defaultCanvasProps)
-        autoSaveSettingInfo(defaultCanvasProps)
+        canvasProps.height=value;
+        setCanvasProps(canvasProps)
+        autoSaveSettingInfo(canvasProps,nodes,groups,links)
+    }
+    // 预设背景发生变化
+    const handlePreBgImg = (image)=>{
+        if(canvasProps.backgroundImageKey == image.key){
+            canvasProps.backgroundImage=null;
+            canvasProps.backgroundImageKey = null
+        }else{
+            canvasProps.backgroundImage=`url(${image.img})`;
+            canvasProps.backgroundImageKey = image.key
+        }
+        setCanvasProps(canvasProps)
+        autoSaveSettingInfo(canvasProps,nodes,groups,links)
+    }
+    // 是否显示网格
+    const handleChangeGrid=(e)=>{
+        console.log(`handleChangeGrid`,e.target.checked,gridSize)
+        if(e.target.checked){
+            setShowGrid(true)
+            canvasProps.grid.show=true
+            canvasProps.grid.url = svgString
+            canvasProps.grid.size=gridSize
+        }else{
+            setShowGrid(false)
+            canvasProps.grid.show=false
+            canvasProps.grid.url = null
+            canvasProps.grid.size=10
+        }
+        setCanvasProps(canvasProps)
+        autoSaveSettingInfo(canvasProps,nodes,groups,links)
+
+    }
+    // 网格大小改变
+    const handleChangeGridSize=(value)=>{
+        console.log("handleChangeGridSize==",value,showGrid)
+        setGridSize(value)
+        if(showGrid){
+            let svgString = encodeURIComponent(renderToStaticMarkup(
+                <GridBackgroundSVG height={value*20} width={value*20} strokeColor='red' />)
+            );
+            canvasProps.grid.url = svgString
+            canvasProps.grid.size=value
+            setCanvasProps(canvasProps)
+            autoSaveSettingInfo(canvasProps,nodes,groups,links)
+        }
     }
     // 位置和尺寸改变
     const onInputPositionXChange = (value)=>{node.x = value;updateNodes(node)}
@@ -110,7 +173,6 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     // 旋转角度改变
     const onInputRotateChange = (value)=>{node.rotate = value;updateNodes(node)}
     const onInputChange = (value)=>{
-        console.log(value)
         node.x = value;
     }
     const parserInputValue = (value)=>{
@@ -118,6 +180,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         let r = value.match(reg);
         return r&&r[2]
     }
+
     // 渲染自定义页面设置
     const renderPageSetting = ()=>{
             return (
@@ -175,7 +238,37 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                     </Panel>
                     <Panel header="背景" key="2">
                         <div className="components-box">
-                            背景颜色：<ColorsPicker/>
+                            <ul>
+                                <li style={{display:'flex'}}>背景颜色：<ColorsPicker/></li>
+                                <li style={{display:'flex'}}>背景图片：<UploadBgImg/></li>
+                                <li>
+                                    <p style={{textAlign:'left'}}>预设图片：</p>
+                                    <div className="preinstall-bg-img">
+                                        {preImages.map((image,key)=>{
+                                            return (
+                                                <div key={key} className="pre-mini-img" onClick={()=>handlePreBgImg(image)}>
+                                                    <img src={image.img} alt=""/>
+                                                    {canvasProps.backgroundImageKey == image.key?<Button
+                                                        className="pre-img-selected-icon"
+                                                        size="small" type="primary" shape="circle" icon="check" />:''}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </li>
+                                <li className="grid-setting">
+                                    <Checkbox  checked={showGrid} onChange={handleChangeGrid} >网格</Checkbox>
+                                    <InputNumber
+                                        value={gridSize}
+                                        min={10}
+                                        max={100}
+                                        formatter={value => `${value}px`}
+                                        parser={value => value.replace('px', '')}
+                                        onChange={handleChangeGridSize}
+                                    />
+                                    <ColorsPicker/>
+                                </li>
+                            </ul>
                         </div>
                     </Panel>
                 </Collapse>

@@ -1121,6 +1121,7 @@ export default class CanvasContent extends React.Component<
                     screenWidth={cp.width}
                     backgroundColor={cp.backgroundColor}
                     backgroundImage={cp.backgroundImage}
+                    grid={cp.grid}
                     mapRectStyle={{
                       stroke: "#468CFF",
                       fill: "transparent",

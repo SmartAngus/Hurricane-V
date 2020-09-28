@@ -16,7 +16,12 @@ rect {
   display: flex;
   /** TODO：有问题，不加可能会造成ER图的突变，加了会导致缩略图的宽度不正确 **/
   width: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-origin: inherit;
+  background-position: bottom;
 }
+
 
 .map-ctrl {
   position: relative;
@@ -54,4 +59,5 @@ rect {
 }
 .screen-animation-wh {
   transition: 0.3s all linear;
+  background-position: -56px -151px;
 }
