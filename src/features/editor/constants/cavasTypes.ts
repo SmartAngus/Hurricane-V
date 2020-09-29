@@ -82,4 +82,6 @@ export class CanvasContentState {
     deleteVisible: boolean;
     /**当前选中节点*/
     currentSelectedNode: Node;
+    // 暂存文本组件中的文本
+    textCompTxt?:HTMLDivElement;
 }

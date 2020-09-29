@@ -252,16 +252,10 @@ export function getTwoDimen(a:number,b:number) {
 //     a: '1',
 // }
 export function getHexColor(color) {
-  console.log("color",color)
   var a = parseFloat(color.a || 1),
       r = Math.floor(a * parseInt(color.r) + (1 - a) * 255),
       g = Math.floor(a * parseInt(color.g) + (1 - a) * 255),
       b = Math.floor(a * parseInt(color.b) + (1 - a) * 255)
-  console.log(g.toString(16))
-  console.log(r.toString(16))
-  console.log(b.toString(16))
-
-
   return '#' +
       ('0' + r.toString(16)).slice(-2) +
       ('0' + g.toString(16)).slice(-2) +

@@ -188,7 +188,11 @@ export enum ComponentKey {
     diamond = "diamond",
     polygon = "polygon",
     ellipse = "ellipse",
-    star = "star"
+    star = "star",
+    text = "text",
+    line = "line",
+    table = "table",
+    time = "time",
 }
 // 基本组件的基本样式属性
 export class BaseCompStyle {
@@ -210,25 +214,13 @@ export class BaseCompStyle {
 // 单元类型
 // 输入组件
 const COMMON_COMPONENT: Node[] = [
-    /** 矩形 */
+    /** 文本 */
     {
         type: ComponentType.common,
-        key: ComponentKey.rect,
-        name: "RECT",
+        key: ComponentKey.text,
+        name: "文本",
         width: 100,
-        height: 100,
-        icon: (
-            <div style={{ width: 36, height: 36, border: "2px solid #52619b" }} />
-        ),
-        disabled: false
-    },
-    /** 矩形带圆角 */
-    {
-        type: ComponentType.common,
-        key: ComponentKey.rectRadius,
-        name: "RECT-RADIU",
-        width: 100,
-        height: 100,
+        height: 30,
         icon: (
             <div
                 style={{
@@ -239,13 +231,81 @@ const COMMON_COMPONENT: Node[] = [
                 }}
             />
         ),
+        chart:{
+            type: 'base',
+            component: 'textComp',
+        },
+        disabled: false
+    },
+    /** 矩形 */
+    {
+        type: ComponentType.common,
+        key: ComponentKey.rect,
+        name: "矩形",
+        width: 100,
+        height: 100,
+        icon: (
+            <div style={{ width: 36, height: 36, border: "2px solid #52619b" }} />
+        ),
         disabled: false
     },
     /** 圆形 */
     {
         type: ComponentType.common,
         key: ComponentKey.circle,
-        name: "CIRCLE",
+        name: "圆形",
+        width: 100,
+        height: 100,
+        icon: (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                version="1.1"
+                width="72px"
+                height="40px"
+            >
+                <circle
+                    cx="36"
+                    cy="20"
+                    r="18"
+                    stroke="#52619b"
+                    strokeWidth="2"
+                    fill="transparent"
+                />
+            </svg>
+        ),
+        disabled: false
+    },
+    /** 直线形 */
+    {
+        type: ComponentType.common,
+        key: ComponentKey.line,
+        name: "直线",
+        width: 100,
+        height: 100,
+        icon: (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                version="1.1"
+                width="72px"
+                height="40px"
+            >
+                <circle
+                    cx="36"
+                    cy="20"
+                    r="18"
+                    stroke="#52619b"
+                    strokeWidth="2"
+                    fill="transparent"
+                />
+            </svg>
+        ),
+        disabled: false
+    },
+    /** 时间 */
+    {
+        type: ComponentType.common,
+        key: ComponentKey.time,
+        name: "时间",
         width: 100,
         height: 100,
         icon: (

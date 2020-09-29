@@ -64,8 +64,6 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         a: '1',
     })
 
-    console.log("canvasProps===",canvasProps)
-
     useEffect(()=>{
         if(canvasProps&&canvasProps.grid){
             setGridSize(canvasProps.grid.size)

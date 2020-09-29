@@ -35,6 +35,7 @@ import {
 } from "../utils/find";
 import { calcLinkPosition,getRotateAngle } from "../utils/calc";
 import { pointInPoly, checkNodeIsOverGroup } from "../utils/layout";
+import { getParent,addChildAt } from "../utils/dom";
 import { exitFullscreen, launchFullscreen, isFull, getOffset } from "./utils";
 import { CanvasContentProps, CanvasContentState } from '../constants/cavasTypes'
 import {Point} from "../utils/types";
@@ -73,6 +74,7 @@ export default class CanvasContent extends React.Component<
       dragNodeOffset: null,
       dragGroupOffset: null,
       menuDisplay: false,
+      textCompTxt:undefined,
       menuPos: {
         id: "",
         x: 0,
@@ -100,6 +102,8 @@ export default class CanvasContent extends React.Component<
     );
     this.container.current.addEventListener("click", this.onContainerMouseDown);
 
+    this.nodesContainerRef.current.addEventListener("dblclick",this.onNodesContainerDbCLick)
+
     // 初始化布局
     this.handleApplyTransform(zoomIdentity);
   }
@@ -117,6 +121,8 @@ export default class CanvasContent extends React.Component<
       "click",
       this.onContainerMouseDown
     );
+    this.nodesContainerRef.current.removeEventListener("dblclick",this.onNodesContainerDbCLick)
+
   }
 
   componentWillUpdate(
@@ -218,6 +224,33 @@ export default class CanvasContent extends React.Component<
     const {onSaveHistory}=this.props
     onSaveHistory()
   }
+  // 监听整个区域的双击事件
+  onNodesContainerDbCLick = (event: any)=>{
+    console.log("onNodesContainerDbCLick",event.target)
+    console.log("currentSelectedNode==",this.state.currentSelectedNode)
+    const nd=this.state.currentSelectedNode
+    if(nd&&nd.key=='text'){
+      // 创建一个可编辑的div
+      const textEdittable=document.createElement("div");
+      textEdittable.style.width = nd.width+"px"
+      textEdittable.style.height = nd.height+"px"
+      textEdittable.style.backgroundColor = "#fff"
+      textEdittable.style.position = "absolute"
+      textEdittable.style.left = nd.x+"px"
+      textEdittable.style.top = nd.y+"px"
+      textEdittable.style.overflow="hidden"
+      textEdittable.style.textOverflow="hidden"
+      textEdittable.style.whiteSpace="nowrap"
+      textEdittable.innerText=nd.name
+      textEdittable.setAttribute("class","editor-node")
+      textEdittable.setAttribute("contenteditable","true")
+      const p = getParent(this.nodesContainerRef.current,"div")
+      addChildAt(p,textEdittable,1000);
+      this.setState({textCompTxt:textEdittable})
+
+    }
+  }
+
 
   /** 监听整个区域，提升性能 */
   onNodesContainerMouseDown = (event: any) => {
@@ -271,13 +304,18 @@ export default class CanvasContent extends React.Component<
   onContainerMouseDown = (event: any) => {
     // event.preventDefault()
     // event.stopPropagation();
-
+    console.log("onContainerMouseDown==",this.state.textCompTxt)
     // 过滤掉节点和边
     const path = event.path;
     const isNodeOrLink = this.hasNodeOrLink(path, "editor-node", "editor-link");
+    console.log(isNodeOrLink)
     if (!isNodeOrLink) {
       // 清空高亮的节点和边
       this.handleClearActive();
+      // 获取可编辑div内的文本
+      if(this.state.textCompTxt){
+        console.log(this.state.textCompTxt.innerText)
+      }
 
     }else{
 
@@ -767,7 +805,7 @@ export default class CanvasContent extends React.Component<
   /** 判断点击的节点是否为节点和边 */
   hasNodeOrLink = (array: any[], node?: string, link?: string) => {
     let isNodeOrLink = false;
-
+    if(array==undefined) return isNodeOrLink;
     for (let i = 0; i < array.length; i++) {
       const inNode = _.includes(array[i].classList, node);
       const inLink = _.includes(array[i].classList, link);

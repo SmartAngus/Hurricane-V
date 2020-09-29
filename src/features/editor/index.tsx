@@ -21,8 +21,6 @@ export default function EditorDemo(props) {
     const [screenScale, changeScreenScale] = useState(100);
     const [dragSelectable, setDragSelectable] = useState(false);
     const [keyPressing, setKeyPressing] = useState(false);
-    const context = useContext(ThemeContext)
-    console.log("context",context)
     const {
         nodes,
         links,
@@ -390,8 +388,7 @@ export default function EditorDemo(props) {
     };
     /** 保存历史 */
     const handleSaveHistory =async () => {
-         const r =  await handleSaveHistoryData()
-        console.log(editorLocalHistoryData)
+         await handleSaveHistoryData()
     };
 
     /** 计算选中节点的位置，形成大的group */
