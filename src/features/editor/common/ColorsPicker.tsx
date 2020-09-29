@@ -2,8 +2,13 @@ import React from 'react'
 import reactCSS from 'reactcss'
 import { SketchPicker } from 'react-color'
 import {Button} from 'antd'
+import './ColorsPicker.scss'
 
-class ColorsPicker extends React.Component {
+class ColorsPickerProps{
+    onSetColor?:(color:any)=>void
+}
+
+class ColorsPicker extends React.Component<ColorsPickerProps> {
     state = {
         displayColorPicker: false,
         color: {
@@ -11,7 +16,7 @@ class ColorsPicker extends React.Component {
             g: '112',
             b: '19',
             a: '1',
-        },
+        }
     };
 
     handleClick = () => {
@@ -23,8 +28,14 @@ class ColorsPicker extends React.Component {
     };
 
     handleChange = (color) => {
-        this.setState({ color: color.rgb })
+        console.log(color)
+       this.setState({ color: color.rgb })
     };
+    handleSetColor = ()=>{
+        const {onSetColor} = this.props;
+        onSetColor(this.state.color)
+        this.setState({ displayColorPicker: false })
+    }
 
     render() {
 
@@ -47,6 +58,7 @@ class ColorsPicker extends React.Component {
                 popover: {
                     position: 'absolute',
                     zIndex: '2',
+                    right:50
                 },
                 cover: {
                     position: 'fixed',
@@ -63,11 +75,11 @@ class ColorsPicker extends React.Component {
                 <div style={ styles.swatch } onClick={ this.handleClick }>
                     <div style={ styles.color } />
                 </div>
-                { this.state.displayColorPicker ? <div style={ styles.popover }>
+                { this.state.displayColorPicker ? <div className="color-picker-container" style={ styles.popover }>
                     <div style={ styles.cover } onClick={ this.handleClose }/>
-                    <SketchPicker color={ this.state.color }  onChangeComplete={ this.handleChange } />
-                    <Button>取消</Button>
-                    <Button type="primary"></Button>
+                    <SketchPicker color={ this.state.color } className="my-color-picker"  onChangeComplete={ this.handleChange } />
+                    <Button onClick={this.handleClose} style={{marginRight:20}}>取消</Button>
+                    <Button type="primary" onClick={this.handleSetColor}>确定</Button>
                 </div> : null }
             </div>
         )

@@ -11,6 +11,7 @@ import preImage2 from '../../../assets/images/pre-image2.png'
 import preImage3 from '../../../assets/images/pre-image3.jpg'
 import UploadBgImg from "../components/uploadBgImg/UploadBgImg";
 import LeftJustifying,{GridBackgroundSVG} from "../icons/editorIcons";
+import {getHexColor} from '../utils/calc'
 
 
 const { TabPane } = Tabs
@@ -38,6 +39,10 @@ const pageSizes = [
     {key:'1440*900',text:'1440*900',width:1440,height:900},
     {key:'1366*768',text:'1366*768',width:1366,height:768},
 ]
+const pageSizes2 = [
+    {key:'1024*768',text:'1024*768',width:1024,height:768},
+    {key:'800*600',text:'800*600',width:800,height:600},
+]
 const preImages = [
     {key:1,img:preImage1},
     {key:2,img:preImage2},
@@ -52,6 +57,12 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
 
     const [gridSize,setGridSize]=useState(10)
     let [showGrid,setShowGrid]=useState(false)
+    let [gridColor,setGridColor]=useState({
+        r: '241',
+        g: '112',
+        b: '19',
+        a: '1',
+    })
 
     console.log("canvasProps===",canvasProps)
 
@@ -59,6 +70,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         if(canvasProps&&canvasProps.grid){
             setGridSize(canvasProps.grid.size)
             setShowGrid(canvasProps.grid.show)
+            canvasProps.grid.color&&setGridColor(canvasProps.grid.color)
         }
     },[canvasProps])
 
@@ -67,7 +79,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     let isCompSetting= false
     let isSetting = false
     // convert component to string useable in data-uri
-    let svgString = encodeURIComponent(renderToStaticMarkup(<GridBackgroundSVG strokeColor='red' />));
+    let svgString = encodeURIComponent(renderToStaticMarkup(<GridBackgroundSVG strokeColor={getHexColor(gridColor)} />));
     //svgString = btoa(svgString);
     // setCanvasProps(defaultCanvasProps)
 
@@ -102,7 +114,10 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         }
     }
     const handleCanvasChange = (value) => {
-        const canvasSize = _.find(pageSizes,s=>s.key===value)
+        let canvasSize = _.find(pageSizes,s=>s.key===value)
+        if(canvasSize === undefined){
+            canvasSize = _.find(pageSizes2,s=>s.key===value)
+        }
         canvasProps.height=canvasSize.height;
         canvasProps.width=canvasSize.width;
         setCanvasProps(canvasProps)
@@ -154,14 +169,32 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         console.log("handleChangeGridSize==",value,showGrid)
         setGridSize(value)
         if(showGrid){
+            console.log(getHexColor(gridColor))
             let svgString = encodeURIComponent(renderToStaticMarkup(
-                <GridBackgroundSVG height={value*20} width={value*20} strokeColor='red' />)
+                <GridBackgroundSVG height={value*20} width={value*20} strokeColor={getHexColor(gridColor)} />)
             );
             canvasProps.grid.url = svgString
             canvasProps.grid.size=value
             setCanvasProps(canvasProps)
             autoSaveSettingInfo(canvasProps,nodes,groups,links)
         }
+    }
+    // 画布背景颜色改变
+    const handleSetBgColor = (color)=>{
+        canvasProps.backgroundColor=getHexColor(color);
+        setCanvasProps(canvasProps)
+        autoSaveSettingInfo(canvasProps,nodes,groups,links)
+    }
+    // 网格颜色改变
+    const handleSetGridColor = (color)=>{
+        setGridColor(color)
+        canvasProps.grid.color=color
+        let svgString = encodeURIComponent(renderToStaticMarkup(
+            <GridBackgroundSVG height={gridSize*20} width={gridSize*20} strokeColor={getHexColor(gridColor)} />)
+        );
+        canvasProps.grid.url = svgString
+        setCanvasProps(canvasProps)
+        autoSaveSettingInfo(canvasProps,nodes,groups,links)
     }
     // 位置和尺寸改变
     const onInputPositionXChange = (value)=>{node.x = value;updateNodes(node)}
@@ -223,13 +256,14 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                             </li>
                             <li className="bant-list-item">
                                 <div className="bant-list-item-extra">
-                                    <div className="preview-box"></div>
+                                    <div className="preview-box box-four-to-three"></div>
                                 </div>
                                 <div className="bant-list-item-main">
-                                    <div className="bant-list-item-meta"><h3>16:9</h3></div>
+                                    <div className="bant-list-item-meta"><h3>4:3</h3></div>
                                     <div className="bant-list-item-meta-content">
-                                        {pageSizes.map((size,key)=>{
-                                            return <a  key={key} className="canvas-size-row">{size.text}</a>
+                                        {pageSizes2.map((size,key)=>{
+                                            return <a  onClick={()=>handleCanvasChange(size.key)}
+                                                key={key} className="canvas-size-row">{size.text}</a>
                                         })}
                                     </div>
                                 </div>
@@ -239,7 +273,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                     <Panel header="背景" key="2">
                         <div className="components-box">
                             <ul>
-                                <li style={{display:'flex'}}>背景颜色：<ColorsPicker/></li>
+                                <li style={{display:'flex'}}>背景颜色：<ColorsPicker  onSetColor={handleSetBgColor}/></li>
                                 <li style={{display:'flex'}}>背景图片：<UploadBgImg/></li>
                                 <li>
                                     <p style={{textAlign:'left'}}>预设图片：</p>
@@ -266,7 +300,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                                         parser={value => value.replace('px', '')}
                                         onChange={handleChangeGridSize}
                                     />
-                                    <ColorsPicker/>
+                                    <ColorsPicker onSetColor={handleSetGridColor}/>
                                 </li>
                             </ul>
                         </div>
