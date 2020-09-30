@@ -28,6 +28,8 @@ class NodeProps {
   /** 点击节点 */
   onClick?: (event) => void;
 
+  onDoubleClick?:(event)=>void;
+
   /** ContextMenu */
   onContextMenu?: (position: any, event) => void;
 
@@ -78,6 +80,7 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     id,
     chart,
     onClick,
+    onDoubleClick,
     onContextMenu,
     children,
     currTrans,
@@ -229,6 +232,7 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
       }}
       ref={ref}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
       onMouseEnter={() => setShowSelector(true)}
       onMouseLeave={() => setShowSelector(false)}
       onContextMenu={handleContextMenu}

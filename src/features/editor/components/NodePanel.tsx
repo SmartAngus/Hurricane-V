@@ -81,7 +81,7 @@ export default function NodePanel(props: NodePanelProps) {
                           <div className="components-box-item-icon">
                             {child.icon}
                           </div>
-                          {/*{child.name}*/}
+                          {child.name}
                         </div>
                       );
                     })}

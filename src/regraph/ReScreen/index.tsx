@@ -839,7 +839,7 @@ export default class ReScreen extends React.Component<Props, State> {
     const width = screenWidth ? screenWidth : this.screenWidth || '100%';
     const height = screenHeight ? screenHeight : this.screenHeight || '100%';
     let backgroundImage = '';
-    if(grid.show){
+    if(grid&&grid.show){
       backgroundImage = `url("data:image/svg+xml,${grid.url}")`
     }
 

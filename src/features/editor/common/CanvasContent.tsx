@@ -12,6 +12,7 @@ import { EditorNode } from "./EditorNode";
 import { EditorGroup } from "./EditorGroup";
 import { EditorEdges } from "./EditorEdges";
 import { ContextMenu } from "./ContextMenu";
+import EditableText from "../components/editableText/EditableText";
 import { useEditorStore} from '../hooks'
 import {
   MenuPos,
@@ -40,6 +41,8 @@ import { exitFullscreen, launchFullscreen, isFull, getOffset } from "./utils";
 import { CanvasContentProps, CanvasContentState } from '../constants/cavasTypes'
 import {Point} from "../utils/types";
 
+const {useEffect}=React
+
 
 
 export default class CanvasContent extends React.Component<
@@ -58,6 +61,8 @@ export default class CanvasContent extends React.Component<
   handleResizeTo?: (scale: number, P0?: [number, number]) => void;
   handleScreenResizeTo?: (scale: number, P0?: [number, number]) => void;
   handleLocation?: (point:Point) => void;
+  editableRef:any;
+
 
 
   constructor(props) {
@@ -74,7 +79,7 @@ export default class CanvasContent extends React.Component<
       dragNodeOffset: null,
       dragGroupOffset: null,
       menuDisplay: false,
-      textCompTxt:undefined,
+      textCompTxt:false,
       menuPos: {
         id: "",
         x: 0,
@@ -89,6 +94,8 @@ export default class CanvasContent extends React.Component<
     this.nodesContainerRef = React.createRef();
     this.container = React.createRef();
     this.svgContainer = React.createRef();
+    this.editableRef = React.createRef()
+
   }
 
   componentDidMount() {
@@ -106,6 +113,7 @@ export default class CanvasContent extends React.Component<
 
     // 初始化布局
     this.handleApplyTransform(zoomIdentity);
+
   }
 
   componentWillUnmount() {
@@ -226,27 +234,27 @@ export default class CanvasContent extends React.Component<
   }
   // 监听整个区域的双击事件
   onNodesContainerDbCLick = (event: any)=>{
-    console.log("onNodesContainerDbCLick",event.target)
-    console.log("currentSelectedNode==",this.state.currentSelectedNode)
     const nd=this.state.currentSelectedNode
     if(nd&&nd.key=='text'){
       // 创建一个可编辑的div
-      const textEdittable=document.createElement("div");
-      textEdittable.style.width = nd.width+"px"
-      textEdittable.style.height = nd.height+"px"
-      textEdittable.style.backgroundColor = "#fff"
-      textEdittable.style.position = "absolute"
-      textEdittable.style.left = nd.x+"px"
-      textEdittable.style.top = nd.y+"px"
-      textEdittable.style.overflow="hidden"
-      textEdittable.style.textOverflow="hidden"
-      textEdittable.style.whiteSpace="nowrap"
-      textEdittable.innerText=nd.name
-      textEdittable.setAttribute("class","editor-node")
-      textEdittable.setAttribute("contenteditable","true")
-      const p = getParent(this.nodesContainerRef.current,"div")
-      addChildAt(p,textEdittable,1000);
-      this.setState({textCompTxt:textEdittable})
+      // const textEdittable=document.createElement("div");
+      // textEdittable.style.width = nd.width+"px"
+      // textEdittable.style.height = nd.height+"px"
+      // textEdittable.style.backgroundColor = "#fff"
+      // textEdittable.style.position = "absolute"
+      // textEdittable.style.left = nd.x+"px"
+      // textEdittable.style.top = nd.y+"px"
+      // textEdittable.style.overflow="hidden"
+      // textEdittable.style.textOverflow="hidden"
+      // textEdittable.style.whiteSpace="nowrap"
+      // textEdittable.style.zIndex=nd.zIndex+""
+      // textEdittable.style.transform=`rotate(${nd.rotate}deg)`
+      // textEdittable.innerText=nd.name
+      // textEdittable.setAttribute("class","editor-node")
+      // textEdittable.setAttribute("contenteditable","true")
+      // const p = getParent(this.nodesContainerRef.current,"div")
+      // addChildAt(p,textEdittable,1000);
+      this.setState({textCompTxt:true})
 
     }
   }
@@ -304,17 +312,33 @@ export default class CanvasContent extends React.Component<
   onContainerMouseDown = (event: any) => {
     // event.preventDefault()
     // event.stopPropagation();
-    console.log("onContainerMouseDown==",this.state.textCompTxt)
     // 过滤掉节点和边
     const path = event.path;
     const isNodeOrLink = this.hasNodeOrLink(path, "editor-node", "editor-link");
-    console.log(isNodeOrLink)
     if (!isNodeOrLink) {
       // 清空高亮的节点和边
       this.handleClearActive();
       // 获取可编辑div内的文本
       if(this.state.textCompTxt){
-        console.log(this.state.textCompTxt.innerText)
+        let {updateNodes,onEditNode,canvasStyle,nodes,groups,links,setNodes}=this.props
+        // this.state.textCompTxt.parentNode.removeChild(this.state.textCompTxt)
+        // const newNode = this.state.currentSelectedNode;
+        // newNode.name=this.state.textCompTxt.innerText
+        // this.setState({currentSelectedNode:newNode,textCompTxt:undefined})
+        // updateNodes(newNode)
+        // onEditNode(canvasStyle,nodes,groups,links)
+        console.log(this.editableRef.current.innerText)
+        const newNode = this.state.currentSelectedNode;
+        newNode.name=this.editableRef.current.innerText
+        updateNodes(newNode)
+        onEditNode(canvasStyle,nodes,groups,links)
+        const newNodes = _.cloneDeep(nodes);
+
+        onEditNode(canvasStyle,newNodes,groups,links)
+        this.setState({currentSelectedNode:newNode})
+        console.log(this.state.currentSelectedNode)
+        this.setState({textCompTxt:false})
+
       }
 
     }else{
@@ -1069,10 +1093,28 @@ export default class CanvasContent extends React.Component<
     };
     updateNodes(newNode);
   }
+  // 渲染可编辑文本框
+  renderEditableText=()=>{
+    const node = this.state.currentSelectedNode;
+    if(this.state.textCompTxt&&this.state.currentSelectedNode){
+      return (
+          <div suppressContentEditableWarning  className="editor-node" style={{
+            width:node.width,
+            height:node.height,
+            top:node.y,
+            left:node.x,
+            backgroundColor: '#fff',
+            display:this.state.textCompTxt?'block':'none'
+          }} contentEditable="true" ref={this.editableRef}>{node.name}</div>
+      )
+    }else{
+      return <span  ref={this.editableRef}></span>
+    }
+  }
   // 渲染节点内容
   renderCanvas = () => {
     const { currentHoverNode } = this.state;
-    const { nodes, links, selectedNodes, selectedLinks, groups } = this.props;
+    const { nodes,links, selectedNodes, selectedLinks, groups } = this.props;
     return (
       <div className="editor-view">
         <div className="editor-view-content" ref={this.nodesContainerRef}>
@@ -1097,6 +1139,7 @@ export default class CanvasContent extends React.Component<
               />
             );
           })}
+          {this.renderEditableText()}
 
           {(groups || []).map(child => {
             const id = child?.id;
@@ -1126,6 +1169,7 @@ export default class CanvasContent extends React.Component<
       </div>
     );
   };
+
 
   render() {
     const { deleteVisible, menuPos } = this.state;

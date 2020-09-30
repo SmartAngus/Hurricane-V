@@ -30,7 +30,8 @@ export class CanvasContentProps {
     /** 是否被按住 */
     isKeyPressing: boolean;
     // 面板背景大小设置
-    canvasStyle?:any
+    canvasStyle?:any;
+    onEditNode?:(node:Node,nodes:Node[],group:Group[],links:Link[])=>void;
 }
 
 export class CanvasContentState {
@@ -83,5 +84,5 @@ export class CanvasContentState {
     /**当前选中节点*/
     currentSelectedNode: Node;
     // 暂存文本组件中的文本
-    textCompTxt?:HTMLDivElement;
+    textCompTxt?:boolean;
 }

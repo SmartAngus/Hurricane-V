@@ -674,6 +674,7 @@ export default function EditorDemo(props) {
                 updateGroups={updateGroupsInfo}
                 onSaveHistory={handleSaveHistory}
                 canvasStyle={canvasProps}
+                onEditNode={handleAutoSaveSettingInfo}
             />
         </div>
     );
@@ -681,6 +682,12 @@ export default function EditorDemo(props) {
         <ThemeContext.Provider value={defaultCanvasProps}>
             <ThemeContext.Consumer>
                 {(context)=>{
+                    let cp
+                    if(JSON.stringify(canvasProps)!="{}"){
+                        cp=canvasProps
+                    }else{
+                        cp=context
+                    }
                     return (
                         <div className="editor-demo" ref={screenRef}>
                             <div className="editor-operation">{renderOperation}</div>
@@ -689,7 +696,7 @@ export default function EditorDemo(props) {
                                 {renderCanvas}
                                 <RenderPropertySidebar
                                     selectedNodes={selectedNodes}
-                                    canvasProps={canvasProps}
+                                    canvasProps={cp}
                                     setCanvasProps={setCanvasProps}
                                     nodes={nodes}
                                     groups={groups}

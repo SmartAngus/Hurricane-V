@@ -146,7 +146,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     }
     // 是否显示网格
     const handleChangeGrid=(e)=>{
-        console.log(`handleChangeGrid`,e.target.checked,gridSize)
+        console.log(`handleChangeGrid`,canvasProps)
         if(e.target.checked){
             setShowGrid(true)
             canvasProps.grid.show=true
@@ -160,7 +160,6 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         }
         setCanvasProps(canvasProps)
         autoSaveSettingInfo(canvasProps,nodes,groups,links)
-
     }
     // 网格大小改变
     const handleChangeGridSize=(value)=>{

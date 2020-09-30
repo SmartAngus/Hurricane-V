@@ -7,14 +7,14 @@ import * as React from "react";
 import classNames from "classnames";
 import { Menu } from "antd";
 import { Node as NodeContainer } from "../components";
-import { ContextMenu } from "./ContextMenu";
+import { ContextMenu,ContextEditable } from "./ContextMenu";
 import { Node, OperateType } from "../constants/defines";
 import { useClickAway } from "../hooks/useClickAway";
 import "./EditorNode.scss";
 import loadable from '@loadable/component'
 import CapsuleChart from "../components/charts/capsuleChart";
 
-const { useState, useRef, useMemo, useCallback } = React;
+const { useState, useRef, useMemo, useCallback,useEffect } = React;
 
 class EditorNodeProps {
   /** 唯一id，用于Contextmenu展示 */
@@ -98,6 +98,7 @@ export function EditorNode(props: EditorNodeProps) {
   // 组件内状态，与业务无关
   const [menuShow, setMenuShow] = useState(false);
   const [menuPos, setMenuPos] = useState({ left: 0, top: 0 });
+  const [editableShow,setEditableShow]=useState(false)
 
   useClickAway(
     () => {
@@ -107,8 +108,15 @@ export function EditorNode(props: EditorNodeProps) {
     "contextmenu"
   );
 
+
+
+
+
   const menuRef = useClickAway(() => {
     setMenuShow(false);
+  });
+  const editableRef = useClickAway(() => {
+    setEditableShow(false)
   });
 
   const editorNodeRef = useRef(null);
@@ -168,6 +176,14 @@ export function EditorNode(props: EditorNodeProps) {
       props.onContextMenu(event);
     }
   };
+  const onContextEditable = (
+      event: React.MouseEvent<any>
+  ) => {
+    event.stopPropagation();
+    event.preventDefault();
+    // 根据业务场景处理菜单的位置
+    setEditableShow(true);
+  };
 
   /** 点击菜单项 */
   const handleClickMenu = ({ key }) => {
@@ -184,12 +200,16 @@ export function EditorNode(props: EditorNodeProps) {
     },
     [interactive, onClick, currentNode]
   );
+  /**双击组件*/
+
   // 动态渲染组件
+
   const dynamicLoadComp=useMemo(()=>{
         const OtherComponent = loadable(() => import(`../components/charts/${currentNode.chart.component}`));
-        return <OtherComponent/>
+        return <OtherComponent node={currentNode}/>
       },
   []);
+
   return (
     <NodeContainer
       id={currentNode.id}
@@ -205,6 +225,7 @@ export function EditorNode(props: EditorNodeProps) {
       ref={nodeRef}
       isSelected={isSelected}
       onClick={handleClickNode}
+      onDoubleClick={onContextEditable}
       onResize={onResize}
       onChangeZIndex={onChangeZIndex}
       onContextMenu={interactive ? onContextMenu : null}
@@ -240,7 +261,29 @@ export function EditorNode(props: EditorNodeProps) {
             </div>
           </div>
       ):(
-          <div>{dynamicLoadComp}</div>
+          <div style={{position:"relative",width:'100%',height:"100%"}}>
+            {dynamicLoadComp}
+            <div className="editorNode-box-menu" ref={menuRef}>
+              <ContextMenu
+                  id={currentNode.id}
+                  visible={menuShow}
+                  left={menuPos.left}
+                  top={menuPos.top}
+              >
+                <Menu
+                    getPopupContainer={(triggerNode: any) => triggerNode.parentNode}
+                >
+                  {menuList.map(child => {
+                    return (
+                        <Menu.Item key={child.key} onClick={handleClickMenu}>
+                          {child.name}
+                        </Menu.Item>
+                    );
+                  })}
+                </Menu>
+              </ContextMenu>
+            </div>
+          </div>
       )}
     </NodeContainer>
   );
