@@ -702,6 +702,7 @@ export default function EditorDemo(props) {
                                     groups={groups}
                                     links={links}
                                     updateNodes={updateNodes}
+                                    setDragNode={setDragNode}
                                     autoSaveSettingInfo={handleAutoSaveSettingInfo} />
                             </div>
                         </div>

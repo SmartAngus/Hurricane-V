@@ -60,6 +60,7 @@ class EditorNodeProps {
   onResize?: (width: number, height: number, x: number, y: number) => void;
   /** 改变节点图层 */
   onChangeZIndex?:(zIndex: number)=>void;
+  updateNodes?:(node:Node)=>void;
 }
 
 /**
@@ -93,7 +94,8 @@ export function EditorNode(props: EditorNodeProps) {
     onResize,
     onChangeZIndex,
     showSelector,
-    id
+    id,
+    updateNodes
   } = props;
   // 组件内状态，与业务无关
   const [menuShow, setMenuShow] = useState(false);
@@ -206,7 +208,7 @@ export function EditorNode(props: EditorNodeProps) {
 
   const dynamicLoadComp=useMemo(()=>{
         const OtherComponent = loadable(() => import(`../components/charts/${currentNode.chart.component}`));
-        return <OtherComponent node={currentNode}/>
+        return <OtherComponent node={currentNode} updateNodes={updateNodes}/>
       },
   []);
 
@@ -232,11 +234,12 @@ export function EditorNode(props: EditorNodeProps) {
     >
       {currentNode.chart==undefined?(
           <div className="editorNode" ref={editorNodeRef}>
-            <div className={borderClass} style={ { transform: isDiamond?`rotateZ(45deg) skew(30deg,30deg)`: 'none'}}>
+            <div className={borderClass} style={ {
+              ...currentNode.style,
+              transform: isDiamond?`rotateZ(45deg) skew(30deg,30deg)`: 'none'
+            }}>
               <div className="editorNode-box-property">
-                <div className="editorNode-name">
-                  {currentNode.name}
-                </div>
+                <div className="editorNode-name">{/*{currentNode.name}*/}</div>
               </div>
               <div className="editorNode-box-menu" ref={menuRef}>
                 <ContextMenu

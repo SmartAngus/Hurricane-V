@@ -30,7 +30,8 @@ export class OptionsProperty  {
     setCanvasProps?:any;
     // 看版样式
     canvasProps?:any;
-    autoSaveSettingInfo?:(canvasProps:any,nodes:Node[],groups:Group[],links:Link[])=>void
+    autoSaveSettingInfo?:(canvasProps:any,nodes:Node[],groups:Group[],links:Link[])=>void;
+    setDragNode?:(node:Node)=>void;
 }
 // 定义页面尺寸
 const pageSizes = [
@@ -181,6 +182,31 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         canvasProps.backgroundColor=getHexColor(color);
         setCanvasProps(canvasProps)
         autoSaveSettingInfo(canvasProps,nodes,groups,links)
+    }
+    // 边框的颜色
+    const handleSetBoxBorderColor = (color)=>{
+        // 深度复制，防止改变一个颜色而使整个颜色都改变了
+        const newNode = _.cloneDeep(node)
+        if(newNode.style) {
+            newNode.style.borderColor = getHexColor(color);
+            updateNodes(newNode)
+        }
+    }
+    // 边框的填充色
+    const handleSetBoxBgColor = (color)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.style){
+            newNode.style.backgroundColor = getHexColor(color);
+            updateNodes(newNode)
+        }
+    }
+    // 边框的粗细
+    const handleSetBoxBorderWidth = (size)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.style){
+            newNode.style.borderWidth = size;
+            updateNodes(newNode)
+        }
     }
     // 网格颜色改变
     const handleSetGridColor = (color)=>{
@@ -405,6 +431,30 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                                                     <Button type="default"  icon="align-center" />
                                                     <Button type="default"  icon="align-right" />
                                                 </ButtonGroup>
+                                            </div>
+                                        </div>
+                                    </Panel>
+                                    <Panel header="外观" key="3" style={{height:600}}>
+                                        <div className="components-box">
+                                            <div className="components-box-inner">
+                                                <label>填充</label>
+                                                <ColorsPicker
+                                                    defaultColor={node.style?.backgroundColor}
+                                                    onSetColor={handleSetBoxBgColor}/>
+                                            </div>
+                                            <div className="components-box-inner">
+                                                <label>边框</label>
+                                                <ColorsPicker
+                                                    defaultColor={node.style?.borderColor}
+                                                    onSetColor={handleSetBoxBorderColor}/>
+                                                <InputNumber
+                                                    value={node.style?.borderWidth}
+                                                    min={0}
+                                                    max={4}
+                                                    formatter={value => `${value}px`}
+                                                    parser={value => value.replace('px', '')}
+                                                    onChange={handleSetBoxBorderWidth}
+                                                />
                                             </div>
                                         </div>
                                     </Panel>

@@ -3,6 +3,7 @@ import React from "react"
 
 const EditableText = (props:any)=>{
     const {node} = props;
+
     return (
         <div className="editor-node" style={{
             width:node.width,

@@ -207,7 +207,11 @@ export class BaseCompStyle {
     fontWeight?:number;
     textDecoration?:string;
     backgroundColor?:string;
-    opacity?:number
+    opacity?:number;
+    borderSize?:number;
+    borderStyle?:'solid'|'dotted';
+    borderWidth?:number;
+    borderColor?:string;
 }
 
 
@@ -247,6 +251,13 @@ const COMMON_COMPONENT: Node[] = [
         icon: (
             <div style={{ width: 36, height: 36, border: "2px solid #52619b" }} />
         ),
+        style:{
+            backgroundColor:'#fff',
+            borderColor:'#ccc',
+            borderStyle:'solid',
+            borderWidth:2,
+        },
+        rotate:0,
         disabled: false
     },
     /** 圆形 */
@@ -273,6 +284,13 @@ const COMMON_COMPONENT: Node[] = [
                 />
             </svg>
         ),
+        style:{
+            backgroundColor:'#fff',
+            borderColor:'#ccc',
+            borderStyle:'solid',
+            borderWidth:2,
+        },
+        rotate:0,
         disabled: false
     },
     /** 直线形 */

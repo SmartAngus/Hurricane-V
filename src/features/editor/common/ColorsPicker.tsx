@@ -3,21 +3,30 @@ import reactCSS from 'reactcss'
 import { SketchPicker } from 'react-color'
 import {Button} from 'antd'
 import './ColorsPicker.scss'
+import {decodeColor2Rgba} from '../utils/calc'
 
 class ColorsPickerProps{
-    onSetColor?:(color:any)=>void
+    onSetColor?:(color:any)=>void;
+    defaultColor?:string
 }
 
 class ColorsPicker extends React.Component<ColorsPickerProps> {
-    state = {
-        displayColorPicker: false,
-        color: {
+    constructor(props) {
+        super(props);
+    }
+    componentWillReceiveProps(props,nextProps){
+        this.setState({color:decodeColor2Rgba(props.defaultColor)})
+    }
+    state = Object.assign({color:{
             r: '241',
             g: '112',
             b: '19',
-            a: '1',
-        }
-    };
+            a: '1'}
+    },{
+        displayColorPicker: false,
+        color: decodeColor2Rgba(this.props.defaultColor)
+    });
+
 
     handleClick = () => {
         this.setState({ displayColorPicker: !this.state.displayColorPicker })
@@ -37,8 +46,8 @@ class ColorsPicker extends React.Component<ColorsPickerProps> {
         this.setState({ displayColorPicker: false })
     }
 
-    render() {
 
+    render() {
         const styles = reactCSS({
             'default': {
                 color: {

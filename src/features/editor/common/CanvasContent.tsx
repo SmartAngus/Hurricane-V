@@ -12,8 +12,6 @@ import { EditorNode } from "./EditorNode";
 import { EditorGroup } from "./EditorGroup";
 import { EditorEdges } from "./EditorEdges";
 import { ContextMenu } from "./ContextMenu";
-import EditableText from "../components/editableText/EditableText";
-import { useEditorStore} from '../hooks'
 import {
   MenuPos,
   CONNECTOR,
@@ -108,8 +106,8 @@ export default class CanvasContent extends React.Component<
       this.openContainerMenu
     );
     this.container.current.addEventListener("click", this.onContainerMouseDown);
-
-    this.nodesContainerRef.current.addEventListener("dblclick",this.onNodesContainerDbCLick)
+    // 已经修改为text组件自己实现编辑，后期代码可能会去掉
+    // this.nodesContainerRef.current.addEventListener("dblclick",this.onNodesContainerDbCLick)
 
     // 初始化布局
     this.handleApplyTransform(zoomIdentity);
@@ -318,29 +316,6 @@ export default class CanvasContent extends React.Component<
     if (!isNodeOrLink) {
       // 清空高亮的节点和边
       this.handleClearActive();
-      // 获取可编辑div内的文本
-      if(this.state.textCompTxt){
-        let {updateNodes,onEditNode,canvasStyle,nodes,groups,links,setNodes}=this.props
-        // this.state.textCompTxt.parentNode.removeChild(this.state.textCompTxt)
-        // const newNode = this.state.currentSelectedNode;
-        // newNode.name=this.state.textCompTxt.innerText
-        // this.setState({currentSelectedNode:newNode,textCompTxt:undefined})
-        // updateNodes(newNode)
-        // onEditNode(canvasStyle,nodes,groups,links)
-        console.log(this.editableRef.current.innerText)
-        const newNode = this.state.currentSelectedNode;
-        newNode.name=this.editableRef.current.innerText
-        updateNodes(newNode)
-        onEditNode(canvasStyle,nodes,groups,links)
-        const newNodes = _.cloneDeep(nodes);
-
-        onEditNode(canvasStyle,newNodes,groups,links)
-        this.setState({currentSelectedNode:newNode})
-        console.log(this.state.currentSelectedNode)
-        this.setState({textCompTxt:false})
-
-      }
-
     }else{
 
     }
@@ -756,7 +731,6 @@ export default class CanvasContent extends React.Component<
   };
   // 获得画布缩放移动信息
   getTransformInfo = (currTrans: ZoomTransform) => {
-     console.log("getTransformInfo",currTrans)
     this.props.setCurrTrans(currTrans);
   };
 
@@ -794,6 +768,7 @@ export default class CanvasContent extends React.Component<
     if (dragNode) {
       // 新添加了chart属性
       const { key, name, type, width, height,chart,zIndex,style,rotate } = dragNode;
+      console.log(style)
 
       const newNode = {
         key,
@@ -1136,10 +1111,10 @@ export default class CanvasContent extends React.Component<
                 onChangeZIndex={this.onChangeZIndex.bind(this,child)}
                 currTrans={this.props.currTrans}
                 onSelect={this.onSelectNode}
+                updateNodes={this.props.updateNodes}
               />
             );
           })}
-          {this.renderEditableText()}
 
           {(groups || []).map(child => {
             const id = child?.id;
