@@ -63,12 +63,25 @@ export const ComponentMap: Record<ComponentType, string> = {
     [ComponentType.common]: "通用",
     [ComponentType.self]: '图表'
 };
+export class Stroke {// 直线控件有的属性
+    color?:string;
+    width?:number;
+    dashArray?:string;// 线条类型
+    startMarker?:string;// 左边线条类型
+    endMarker?:string;// 左边线条类型
+    x1?:number;
+    y1?:number;
+    x2?:number;
+    y2?:number;
 
+}
 // 定义echarts表
 export class EChart {
     type!: string;
     component!:string;
     options?:any;
+    format?:any;// 时间控件有的属性
+    stroke?:Stroke;
 }
 
 export class Node {
@@ -212,6 +225,7 @@ export class BaseCompStyle {
     borderStyle?:'solid'|'dotted';
     borderWidth?:number;
     borderColor?:string;
+    color?:string;
 }
 
 
@@ -238,6 +252,16 @@ const COMMON_COMPONENT: Node[] = [
         chart:{
             type: 'base',
             component: 'textComp',
+        },
+        style:{
+            backgroundColor:'#fff',
+            borderColor:'#ccc',
+            borderStyle:'solid',
+            borderWidth:0,
+            fontFamily:'微软雅黑',
+            fontSize: 12,
+            color:'#111',
+            textAlign:'center'
         },
         disabled: false
     },
@@ -299,7 +323,7 @@ const COMMON_COMPONENT: Node[] = [
         key: ComponentKey.line,
         name: "直线",
         width: 100,
-        height: 100,
+        height: 4,
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -307,16 +331,23 @@ const COMMON_COMPONENT: Node[] = [
                 width="72px"
                 height="40px"
             >
-                <circle
-                    cx="36"
-                    cy="20"
-                    r="18"
-                    stroke="#52619b"
-                    strokeWidth="2"
-                    fill="transparent"
-                />
+                <line xmlns="http://www.w3.org/2000/svg" x1="20" y1="30" x2="52" y2="10"
+                      stroke="#52619b"
+                      strokeWidth="2" />
             </svg>
         ),
+        chart:{
+            type: 'line',
+            component: 'lineComp',
+            stroke:{
+                color:'#52619b',
+                width:4,
+                x1:0,
+                y1:0,
+                x2:100,
+                y2:4
+            }
+        },
         disabled: false
     },
     /** 时间 */
@@ -324,8 +355,8 @@ const COMMON_COMPONENT: Node[] = [
         type: ComponentType.common,
         key: ComponentKey.time,
         name: "时间",
-        width: 100,
-        height: 100,
+        width: 200,
+        height: 30,
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -343,6 +374,24 @@ const COMMON_COMPONENT: Node[] = [
                 />
             </svg>
         ),
+        chart:{
+            type: 'time',
+            component: 'timeComp',
+            format:{
+                d:{show:true,fm:'L'},
+                t:{show:true,fm:'LTS'}
+            }
+        },
+        style:{
+            backgroundColor:'#fff',
+            borderColor:'#ccc',
+            borderStyle:'solid',
+            borderWidth:0,
+            fontFamily:'微软雅黑',
+            fontSize: 12,
+            color:'#111',
+            textAlign:'center'
+        },
         disabled: false
     }
 ];

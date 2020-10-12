@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import {BaseCompStyle, EChart} from "../constants/defines";
-
+import {BaseCompStyle, EChart,Stroke} from "../constants/defines";
+import * as _ from 'lodash'
 
 class NodeInfo {
   width: number;
@@ -11,13 +11,16 @@ class NodeInfo {
   zIndex?:number;
   rotate?:number;
   style?:BaseCompStyle;
+  stroke?:Stroke
 }
 
-const useResize = (isResize: boolean, { width, height, x, y }: NodeInfo): NodeInfo => {
+const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: NodeInfo): NodeInfo => {
   const [nodeWidth, setNodeWidth] = useState(width);
   const [nodeHeight, setNodeHeight] = useState(height);
   const [nodeLeft, setNodeLeft] = useState(x);
   const [nodeTop, setNodeTop] = useState(y);
+  const [nodeChartStroke,setNodeChartStroke]=useState(otherInfo?.chart?.stroke);
+
 
   useEffect(() => {
     setNodeLeft(x);
@@ -67,6 +70,11 @@ const useResize = (isResize: boolean, { width, height, x, y }: NodeInfo): NodeIn
           let newWidth = 0;
           let newHeight = 0;
           let newLeft = 0;
+          // 线条开始拖动，确定初始坐标点的位置
+          let origin = [e.pageX-originMouseX,e.pageY-originMouseY]
+
+          console.log("stroke==",nodeChartStroke)
+
 
           if (currentResizer.classList.contains('bottom-right')) {
             newWidth = originWidth + (e.pageX - originMouseX);
@@ -97,6 +105,17 @@ const useResize = (isResize: boolean, { width, height, x, y }: NodeInfo): NodeIn
               setNodeHeight(newHeight);
               setNodeTop(nodeTop + (e.pageY - originMouseY));
             }
+          } else if(currentResizer.classList.contains('left')){
+            console.log("resile left",x,y)
+            console.log(origin)
+          }else if(currentResizer.classList.contains('right')){
+            // 拖动直线右边的锚点
+            console.log("resile right",x,y)
+            console.log(origin)
+            const newStroke =  _.cloneDeep(nodeChartStroke)
+            newStroke.y2=origin[1]
+            setNodeChartStroke(newStroke)
+            console.log(newStroke)
           } else {
             newWidth = originWidth - (e.pageX - originMouseX);
             newHeight = originHeight - (e.pageY - originMouseY);
@@ -116,13 +135,14 @@ const useResize = (isResize: boolean, { width, height, x, y }: NodeInfo): NodeIn
         };
       }
     }
-  }, [isResize, nodeWidth, nodeHeight, setNodeHeight, setNodeWidth, nodeTop, nodeLeft, setNodeTop, setNodeLeft]);
+  }, [isResize, nodeWidth, nodeHeight, setNodeHeight, setNodeWidth, nodeTop, nodeLeft, setNodeTop, setNodeLeft,nodeChartStroke]);
 
   return {
     width: nodeWidth,
     height: nodeHeight,
     x: nodeLeft,
-    y: nodeTop
+    y: nodeTop,
+    stroke: nodeChartStroke
   };
 };
 

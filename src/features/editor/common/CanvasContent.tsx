@@ -22,7 +22,7 @@ import {
   NODE_WIDTH,
   NODE_HEIGHT,
   LINK_AREA,
-  ThemeContext,
+  ThemeContext, Stroke,
 } from "../constants/defines";
 import {
   findUpstreamNode,
@@ -1048,16 +1048,22 @@ export default class CanvasContent extends React.Component<
     width: number,
     height: number,
     x: number,
-    y: number
+    y: number,
+    stroke:Stroke
   ) => {
+    console.log("伸缩节点onResize",stroke)
     const { updateNodes } = this.props;
     const newNode = {
       ...node,
       width,
       height,
       x,
-      y
+      y,
     };
+    // 将直线改变的坐标更新上去
+    if(newNode.chart?.stroke){
+      newNode.chart.stroke = stroke
+    }
     updateNodes(newNode);
   };
   onChangeZIndex = (node:Node,zIndex:number)=>{

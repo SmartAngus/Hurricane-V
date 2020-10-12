@@ -8,13 +8,14 @@ import classNames from "classnames";
 import { Menu } from "antd";
 import { Node as NodeContainer } from "../components";
 import { ContextMenu,ContextEditable } from "./ContextMenu";
-import { Node, OperateType } from "../constants/defines";
+import {Node, OperateType, Stroke} from "../constants/defines";
 import { useClickAway } from "../hooks/useClickAway";
 import "./EditorNode.scss";
 import loadable from '@loadable/component'
+import * as _ from 'lodash'
 import CapsuleChart from "../components/charts/capsuleChart";
 
-const { useState, useRef, useMemo, useCallback,useEffect } = React;
+const { useState, useRef, useMemo, useCallback,useEffect,useLayoutEffect } = React;
 
 class EditorNodeProps {
   /** 唯一id，用于Contextmenu展示 */
@@ -57,7 +58,7 @@ class EditorNodeProps {
   nodeRef: any;
 
   /** 改变节点大小 */
-  onResize?: (width: number, height: number, x: number, y: number) => void;
+  onResize?: (width: number, height: number, x: number, y: number,stroke:Stroke) => void;
   /** 改变节点图层 */
   onChangeZIndex?:(zIndex: number)=>void;
   updateNodes?:(node:Node)=>void;
@@ -205,12 +206,14 @@ export function EditorNode(props: EditorNodeProps) {
   /**双击组件*/
 
   // 动态渲染组件
-
+  const newNode = _.cloneDeep(currentNode)
+  delete newNode.ref;
   const dynamicLoadComp=useMemo(()=>{
-        const OtherComponent = loadable(() => import(`../components/charts/${currentNode.chart.component}`));
-        return <OtherComponent node={currentNode} updateNodes={updateNodes}/>
-      },
-  []);
+    const OtherComponent = loadable(() => import(`../components/charts/${currentNode.chart.component}`));
+    return (
+        <OtherComponent node={newNode} updateNodes={updateNodes}/>
+    )
+  },[currentNode.chart?.format,currentNode.chart?.stroke])// 只有时间控件和直线才会重新加载
 
   return (
     <NodeContainer
@@ -264,7 +267,12 @@ export function EditorNode(props: EditorNodeProps) {
             </div>
           </div>
       ):(
-          <div style={{position:"relative",width:'100%',height:"100%"}}>
+          <div style={{
+            ...currentNode.style,
+            display:'table',
+            position:"relative",
+            width:"100%",
+            height:"100%"}}>
             {dynamicLoadComp}
             <div className="editorNode-box-menu" ref={menuRef}>
               <ContextMenu

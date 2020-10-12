@@ -44,6 +44,24 @@ const pageSizes2 = [
     {key:'1024*768',text:'1024*768',width:1024,height:768},
     {key:'800*600',text:'800*600',width:800,height:600},
 ]
+const fontFamilies = [
+    {key:1,name:'微软雅黑'},
+    {key:2,name:'宋体'},
+    {key:3,name:'隶书'},
+    {key:4,name:'sans-serif'},
+    {key:5,name:'serif'},
+    {key:6,name:'Verdana'},
+]
+const dataFormats = [
+    {key:'L',name:'YYYY-MM-DD'},
+    {key:'LL',name:'YYYY/MM/DD'},
+    {key:'l',name:'YY/MM/DD'},
+    {key:'ll',name:'MM/DD'},
+]
+const timeFormats = [
+    {key:'LTS',name:'hh:mm:ss'},
+    {key:'LT',name:'hh:mm(24h)'},
+]
 const preImages = [
     {key:1,img:preImage1},
     {key:2,img:preImage2},
@@ -219,6 +237,72 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         setCanvasProps(canvasProps)
         autoSaveSettingInfo(canvasProps,nodes,groups,links)
     }
+    // 设置文本组件字体
+    const handleSetTextFontFamily = (fontFamily)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.style) {
+            newNode.style.fontFamily = fontFamily;
+            updateNodes(newNode)
+        }
+    }
+    // 设置文本组件字体大小
+    const handleSetTextFontSize = (fontSize)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.style) {
+            newNode.style.fontSize = fontSize;
+            updateNodes(newNode)
+        }
+    }
+    // 设置字体颜色
+    const handleSetTextFontColor = (fontColor)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.style) {
+            newNode.style.color = getHexColor(fontColor);
+            updateNodes(newNode)
+        }
+    }
+    // 设置文本对齐方式
+    const handleFontTextAlign = (align)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.style) {
+            newNode.style.textAlign = align;
+            updateNodes(newNode)
+        }
+    }
+    // 设置显示日期
+    const handleShowDate = (e)=>{
+        console.log('handleShowDate==',e.target.checked)
+        const newNode = _.cloneDeep(node)
+        if(newNode.chart) {
+            newNode.chart.format.d.show = e.target.checked;
+            updateNodes(newNode)
+        }
+    }
+    // 设置显示时间
+    const handleShowTime = (e)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.chart) {
+            node.chart.format.t.show = e.target.checked;
+            newNode.chart.format.t.show = e.target.checked;
+            updateNodes(newNode)
+        }
+    }
+    // 设置日期格式
+    const handleSetTimerDate = (value)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.chart) {
+            newNode.chart.format.d.fm = value;
+            updateNodes(newNode)
+        }
+    }
+    // 设置日期时分格式
+    const handleSetTimerTime = (value)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.chart) {
+            newNode.chart.format.t.fm = value;
+            updateNodes(newNode)
+        }
+    }
     // 位置和尺寸改变
     const onInputPositionXChange = (value)=>{node.x = value;updateNodes(node)}
     const onInputPositionYChange = (value)=>{node.y = value;updateNodes(node)}
@@ -235,6 +319,15 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         let reg = /(\D+)\s(\d+)\s(\D+)/
         let r = value.match(reg);
         return r&&r[2]
+    }
+    // 根据不同的组件类型渲染不同的组件属性
+    let isLineComp=false;
+    let isCommonComp=false;
+    if(node?.key=='line'){
+        isLineComp=true
+    }else{
+        isLineComp=false;
+        isCommonComp=true;
     }
 
     // 渲染自定义页面设置
@@ -332,6 +425,91 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                 </>
             )
     }
+    // 渲染普通组件的外观属性
+    const renderCommonOutward=()=>{
+        return (<div className="components-box">
+            <div className="components-box-inner">
+                <label>填充</label>
+                <ColorsPicker
+                    defaultColor={node.style?.backgroundColor}
+                    onSetColor={handleSetBoxBgColor}/>
+            </div>
+            <div className="components-box-inner">
+                <label>边框</label>
+                <ColorsPicker
+                    defaultColor={node.style?.borderColor}
+                    onSetColor={handleSetBoxBorderColor}/>
+                <InputNumber
+                    value={node.style?.borderWidth}
+                    min={0}
+                    max={4}
+                    formatter={value => `${value}px`}
+                    parser={value => value.replace('px', '')}
+                    onChange={handleSetBoxBorderWidth}
+                />
+            </div>
+        </div>)
+    }
+    // 箭头类型
+    const arrowTypes =[
+        {key:0,value:'none',name:'无'},
+        {key:1,value:'typical',name:'typical'},
+        {key:2,value:'open',name:'open'},
+        {key:3,value:'block',name:'block'}
+    ]
+    // 渲染直线外观属性
+    const renderLineOutward=()=>{
+        return (
+            <div className="components-box">
+                <div className="components-box-inner">
+                    <label>线段类型</label>
+                    <Select defaultValue={node.style?.fontFamily}
+                            style={{ width: 100,marginRight:20 }}
+                            onChange={handleSetTextFontFamily}>
+                        {fontFamilies.map((item,key)=>{
+                            return <Option key={key} value={item.name}>{item.name}</Option>
+                        })}
+                    </Select>
+                </div>
+                <div className="components-box-inner">
+                    <label>首端箭头</label>
+                    <Select defaultValue={node.style?.fontFamily}
+                            style={{ width: 100,marginRight:20 }}
+                            onChange={handleSetTextFontFamily}>
+                        {arrowTypes.map((item,key)=>{
+                            return <Option key={key} value={item.value}>{item.name}</Option>
+                        })}
+                    </Select>
+                </div>
+                <div className="components-box-inner">
+                    <label>末端箭头</label>
+                    <Select defaultValue={node.style?.fontFamily}
+                            style={{ width: 100,marginRight:20 }}
+                            onChange={handleSetTextFontFamily}>
+                        {arrowTypes.map((item,key)=>{
+                            return <Option key={key} value={item.value}>{item.name}</Option>
+                        })}
+                    </Select>
+                </div>
+                <div className="components-box-inner">
+                    <label>线段颜色</label>
+                    <ColorsPicker
+                        defaultColor={node.style?.borderColor}
+                        onSetColor={handleSetBoxBorderColor}/>
+                </div>
+                <div className="components-box-inner">
+                    <label>线段宽度</label>
+                    <InputNumber
+                        style={{width:110}}
+                        value={node&&node.width}
+                        formatter={value => `W ${value} px`}
+                        parser={parserInputValue}
+                        onChange={onInputSizeWChange}
+                    />
+                </div>
+            </div>
+        )
+    }
     // 渲染组件属性
     const renderCompSetting = ()=>{
         return (
@@ -399,65 +577,78 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                                         <div className="components-box">
                                             <div className="components-box-inner">
                                                 <label>字体</label>
-                                                <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                                                    <Option value="jack">Jack</Option>
-                                                    <Option value="lucy">Lucy</Option>
-                                                    <Option value="disabled" disabled>
-                                                        Disabled
-                                                    </Option>
-                                                    <Option value="Yiminghe">yiminghe</Option>
+                                                <Select defaultValue={node.style?.fontFamily}
+                                                        style={{ width: 120 }}
+                                                        onChange={handleSetTextFontFamily}>
+                                                    {fontFamilies.map((item,key)=>{
+                                                        return <Option key={key} value={item.name}>{item.name}</Option>
+                                                    })}
                                                 </Select>
                                             </div>
                                             <div className="components-box-inner">
-                                                <label>字体</label>
+                                                <label>字号</label>
                                                 <InputNumber
                                                     style={{width:120}}
-                                                    defaultValue={12}
+                                                    value={node.style?.fontSize}
                                                     min={12}
                                                     max={72}
                                                     formatter={value => `${value}px`}
                                                     parser={value => value.replace(/\[X|px]/g, '')}
-                                                    onChange={onInputChange}
+                                                    onChange={handleSetTextFontSize}
                                                 />
                                             </div>
                                             <div className="components-box-inner">
                                                 <label>颜色</label>
-                                                <ColorsPicker/>
+                                                <ColorsPicker
+                                                    defaultColor={node.style?.color}
+                                                    onSetColor={handleSetTextFontColor}/>
                                             </div>
                                             <div className="components-box-inner">
                                                 <label>对齐</label>
                                                 <ButtonGroup>
-                                                    <Button type="default"  icon="align-left" />
-                                                    <Button type="default"  icon="align-center" />
-                                                    <Button type="default"  icon="align-right" />
+                                                    <Button type="default"  icon="align-left"
+                                                            onClick={()=>handleFontTextAlign('left')} />
+                                                    <Button type="default"
+                                                            icon="align-center"
+                                                            onClick={()=>handleFontTextAlign('center')} />
+                                                    <Button type="default"  icon="align-right"
+                                                        onClick={()=>handleFontTextAlign('right')}/>
                                                 </ButtonGroup>
                                             </div>
                                         </div>
                                     </Panel>
-                                    <Panel header="外观" key="3" style={{height:600}}>
-                                        <div className="components-box">
-                                            <div className="components-box-inner">
-                                                <label>填充</label>
-                                                <ColorsPicker
-                                                    defaultColor={node.style?.backgroundColor}
-                                                    onSetColor={handleSetBoxBgColor}/>
-                                            </div>
-                                            <div className="components-box-inner">
-                                                <label>边框</label>
-                                                <ColorsPicker
-                                                    defaultColor={node.style?.borderColor}
-                                                    onSetColor={handleSetBoxBorderColor}/>
-                                                <InputNumber
-                                                    value={node.style?.borderWidth}
-                                                    min={0}
-                                                    max={4}
-                                                    formatter={value => `${value}px`}
-                                                    parser={value => value.replace('px', '')}
-                                                    onChange={handleSetBoxBorderWidth}
-                                                />
-                                            </div>
-                                        </div>
+                                    <Panel header="外观" key="3">
+                                        {isCommonComp&&renderCommonOutward()}
+                                        {isLineComp&&renderLineOutward()}
                                     </Panel>
+                                    {node.chart?.type == 'time'?(
+                                        <Panel header="时间格式" key="4">
+                                            <div className="components-box">
+                                                <div className="components-box-inner">
+                                                    <Checkbox defaultChecked={node.chart?.format?.d?.show}
+                                                              onChange={handleShowDate}>日期</Checkbox>
+                                                    <Select defaultValue={node.chart?.format?.d?.fm}
+                                                            style={{ width: 180 }}
+                                                            onChange={handleSetTimerDate}>
+                                                        {dataFormats.map((item,key)=>{
+                                                            return <Option key={key} value={item.key}>{item.name}</Option>
+                                                        })}
+                                                    </Select>
+                                                </div>
+                                                <div className="components-box-inner">
+                                                    <Checkbox defaultChecked={node.chart?.format?.t?.show}
+                                                              onChange={handleShowTime}>时间</Checkbox>
+                                                    <Select defaultValue={node.chart?.format?.t?.fm}
+                                                            style={{ width: 180 }}
+                                                            onChange={handleSetTimerTime}>
+                                                        {timeFormats.map((item,key)=>{
+                                                            return <Option key={key} value={item.key}>{item.name}</Option>
+                                                        })}
+                                                    </Select>
+                                                </div>
+                                            </div>
+                                        </Panel>
+                                    ):''}
                                 </Collapse>
                             </div>
                         </div>

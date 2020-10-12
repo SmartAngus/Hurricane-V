@@ -8,7 +8,7 @@ import * as React from "react";
 import {Icon} from 'antd'
 import { useResize } from "../hooks/useResize";
 import "./Node.scss";
-import {BaseCompStyle, EChart} from '../constants/defines'
+import {BaseCompStyle, EChart,Stroke} from '../constants/defines'
 const { useRef, useState, useEffect } = React;
 
 class NodeProps {
@@ -45,7 +45,7 @@ class NodeProps {
   children?: React.ReactNode;
 
   /** 改变节点大小 */
-  onResize?: (width: number, height: number, x: number, y: number) => void;
+  onResize?: (width: number, height: number, x: number, y: number,stroke:Stroke) => void;
 
   /** chart 信息 */
   chart?:EChart;
@@ -102,7 +102,8 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     width: resizeWidth,
     height: resizeHeight,
     x: resizeX,
-    y: resizeY
+    y: resizeY,
+    stroke
   } = useResize(isSelected, {
     width,
     height,
@@ -157,20 +158,26 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     }
   ];
 
-  const RESIZE_SELECTOR = [
+  let RESIZE_SELECTOR = [
     "top-left",
     "top-right",
     "bottom-left",
     "bottom-right",
     "rotate"
   ];
+  let notLine = true
+  if(chart?.type==='line'){// 如果是直线
+    notLine=false
+    RESIZE_SELECTOR = ["left","right"]
+  }
+
 
   // 伸缩器
   const renderResize = (
     <div className="resizable">
       <div className="resizers">
         {RESIZE_SELECTOR.map(item => {
-          if (item === 'rotate') {
+          if (item === 'rotate' && notLine) {
             return (
                 <a
                     key="top-rotate"
@@ -212,9 +219,11 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
       })}
     </div>
   );
+
   useEffect(() => {
-    onResize(resizeWidth, resizeHeight, resizeX, resizeY);
-  }, [resizeWidth, resizeHeight, resizeX, resizeY]);
+    onResize(resizeWidth, resizeHeight, resizeX, resizeY,stroke);
+
+  }, [resizeWidth, resizeHeight, resizeX, resizeY,stroke]);
   useEffect(()=>{
     onChangeZIndex(zIndex)
   },[zIndex])
@@ -237,7 +246,7 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
       onMouseLeave={() => setShowSelector(false)}
       onContextMenu={handleContextMenu}
     >
-      {(isSelected || showSelector) && renderNodeSelector}
+      {((isSelected || showSelector)&&notLine) && renderNodeSelector}
       {isSelected && renderResize}
       {React.cloneElement(children as React.ReactElement<any>, {
         ref: containerRef

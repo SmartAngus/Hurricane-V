@@ -17,6 +17,18 @@
         position: absolute;
         background:#fff;
       }
+      .left {
+        left: -4px;
+        //top: calc(50% - 4px);
+        top:0;
+        cursor: pointer;
+      }
+      .right {
+        right: -4px;
+        //top: calc(50% - 4px);
+        top:100%;
+        cursor: pointer;
+      }
       .top-left {
         left: -4px;
         top: -4px;

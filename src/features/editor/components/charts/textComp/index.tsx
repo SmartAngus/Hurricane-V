@@ -14,10 +14,11 @@ class TextCompProps{
     updateNodes?:(node:Node)=>void
 }
 
-const TextComp:React.FC<TextCompProps> = React.forwardRef((props,ref) =>{
+const TextComp:React.FC<TextCompProps> = (props,ref) =>{
     const {node,updateNodes} = props
     const [showEditable,setShowEditable] = useState(false)
     const editableRef = useRef(null)
+    console.log(node)
     useClickAway(
         () => {
             setShowEditable(false)
@@ -36,6 +37,8 @@ const TextComp:React.FC<TextCompProps> = React.forwardRef((props,ref) =>{
     useEffect(()=>{
         editableRef.current.addEventListener("dblclick",handleDoubleClick)
         editableRef.current.addEventListener("keyup",handleChangeEditableText)
+        //editableRef.current.addEventListener('mousemove',handleSelectText)
+        // 加上会有问题，组件会变少
         //window.addEventListener('click',handleSaveEditData)
         return ()=>{
             editableRef.current.removeEventListener("dblclick",handleDoubleClick)
@@ -43,7 +46,11 @@ const TextComp:React.FC<TextCompProps> = React.forwardRef((props,ref) =>{
             //window.removeEventListener('click',handleSaveEditData)
         }
     })
+    const handleSelectText=(event:any)=>{
+        event.stopPropagation()
+    }
     const handleChangeEditableText=(event:any)=>{
+        event.stopPropagation()
         const name =  editableRef.current.innerText
         const newNode = {
             ...node,
@@ -51,25 +58,41 @@ const TextComp:React.FC<TextCompProps> = React.forwardRef((props,ref) =>{
         };
         updateNodes(newNode)
     }
-    const handleSaveEditData = (event:any)=>{
-        console.log("handleSaveEditData")
-        console.log(event.path)
-        const editable = hasEditableNode(event.path,'editable-box')
-        console.log(editable)
-        if(showEditable && editable){
-            //setShowEditable(false)
-            const name =  editableRef.current.innerText
-            const newNode = {
-                ...node,
-                name
-            };
-            updateNodes(newNode)
-        }
-    }
+    // const handleSaveEditData = (event:any)=>{
+    //    // 取消事件冒泡，防止按delete键删除节点
+    //     event.stopPropagation()
+    //     const editable = hasEditableNode(event.path,'editable-box')
+    //     console.log(editable)
+    //     if(showEditable && editable){
+    //         //setShowEditable(false)
+    //         const name =  editableRef.current.innerText
+    //         const newNode = {
+    //             ...node,
+    //             name
+    //         };
+    //         updateNodes(newNode)
+    //     }
+    // }
 
     const handleDoubleClick = ()=>{
         console.log(node)
         setShowEditable(true)
+        editableRef.current.focus()
+        // const p = editableRef.current,
+        //     s = window.getSelection(),
+        //     r = document.createRange();
+        // r.selectNodeContents(p);
+        // s.removeAllRanges();
+        // s.addRange(r);
+        // document.execCommand('delete', false, null);
+        const div = editableRef.current;
+        const range = document.createRange();
+        if(div.innerHTML==''||div.innerHTML.length==0){
+            div.innerHTML = '请输入文本';
+        }
+        // range.setStart(editableRef.current, 1)
+        // range.setEnd(editableRef.current, 1)
+       // getSelection().addRange(range)
     }
     const editableClass = classNames(
         { "editable-box": showEditable },
@@ -96,6 +119,8 @@ const TextComp:React.FC<TextCompProps> = React.forwardRef((props,ref) =>{
                  style={{
                      width:'100%',
                      height:'100%',
+                     display: 'table-cell',
+                     verticalAlign: 'middle'
                  }}
             >
                     {node.name}
@@ -104,7 +129,7 @@ const TextComp:React.FC<TextCompProps> = React.forwardRef((props,ref) =>{
 
 
     )
-});
+};
 
 export default TextComp;
 

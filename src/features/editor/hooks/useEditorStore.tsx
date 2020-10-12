@@ -52,15 +52,12 @@ export function useEditorStore() {
   }, [editorLocalData]);
 
   const updateNodes = (node: Node) => {
-    console.log("nodes==",nodes)
     const index = nodes.findIndex(item => item.id === node.id);
-
     const newNodes = [
       ...nodes.slice(0, index),
       node,
       ...nodes.slice(index + 1)
     ];
-
     setNodes(newNodes);
   };
 

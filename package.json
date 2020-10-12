@@ -17,7 +17,6 @@
     "@types/react-router-config": "^5.0.1",
     "@types/react-router-dom": "^5.1.5",
     "antd": "3.26.12",
-    "bici-datav": "^0.3.0",
     "classnames": "2.2.2",
     "d3-zoom": "^1.8.3",
     "dagre": "^0.8.5",
@@ -56,17 +55,6 @@
       "last 1 safari version"
     ]
   },
-  "devDependencied": {
-    "gh-pages": "^2.2.0",
-    "d3-format": "^1.4.1",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^24.9.1",
-    "@types/node": "^12.12.29",
-    "@types/react": "^16.9.23",
-    "@types/react-dom": "^16.9.5"
-  },
   "devDependencies": {
     "@types/classnames": "^2.2.9",
     "@types/lodash": "^4.14.149",
@@ -80,6 +68,7 @@
     "rc-drawer": "^1.5.3",
     "rc-queue-anim": "^1.5.0",
     "rc-scroll-anim": "^2.5.1",
-    "rc-tween-one": "^1.7.3"
+    "rc-tween-one": "^1.7.3",
+    "gh-pages": "^2.2.0"
   }
 }
