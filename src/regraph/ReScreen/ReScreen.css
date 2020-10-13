@@ -20,7 +20,9 @@ rect {
   background-size: cover;
   background-origin: inherit;
   background-position: bottom;
+  position: relative;
 }
+
 
 
 .map-ctrl {

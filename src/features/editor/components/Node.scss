@@ -19,14 +19,12 @@
       }
       .left {
         left: -4px;
-        //top: calc(50% - 4px);
-        top:0;
+        top: calc(50% - 4px);
         cursor: pointer;
       }
       .right {
         right: -4px;
-        //top: calc(50% - 4px);
-        top:100%;
+        top: calc(50% - 4px);
         cursor: pointer;
       }
       .top-left {

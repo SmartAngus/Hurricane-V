@@ -8,7 +8,7 @@ import CanvasContent from "./common/CanvasContent";
 import { useEditorStore, useKeyPress, useEventListener } from "./hooks";
 import { ShapeProps } from "./utils/useDragSelect";
 import { pointInPoly } from "./utils/layout";
-import { GROUP_PADDING, Node, Group,defaultCanvasProps,ThemeContext } from "./constants/defines";
+import { GROUP_PADDING, Node, Group} from "./constants/defines";
 import RenderPropertySidebar from "./common/RenderPropertySidebar";
 
 
@@ -679,36 +679,22 @@ export default function EditorDemo(props) {
         </div>
     );
     return (
-        <ThemeContext.Provider value={defaultCanvasProps}>
-            <ThemeContext.Consumer>
-                {(context)=>{
-                    let cp
-                    if(JSON.stringify(canvasProps)!="{}"){
-                        cp=canvasProps
-                    }else{
-                        cp=context
-                    }
-                    return (
-                        <div className="editor-demo" ref={screenRef}>
-                            <div className="editor-operation">{renderOperation}</div>
-                            <div className="editor-container">
-                                {renderNodePanel}
-                                {renderCanvas}
-                                <RenderPropertySidebar
-                                    selectedNodes={selectedNodes}
-                                    canvasProps={cp}
-                                    setCanvasProps={setCanvasProps}
-                                    nodes={nodes}
-                                    groups={groups}
-                                    links={links}
-                                    updateNodes={updateNodes}
-                                    setDragNode={setDragNode}
-                                    autoSaveSettingInfo={handleAutoSaveSettingInfo} />
-                            </div>
-                        </div>
-                    )
-                }}
-            </ThemeContext.Consumer>
-        </ThemeContext.Provider>
+        <div className="editor-demo" ref={screenRef}>
+            <div className="editor-operation">{renderOperation}</div>
+            <div className="editor-container">
+                {renderNodePanel}
+                {renderCanvas}
+                <RenderPropertySidebar
+                    selectedNodes={selectedNodes}
+                    canvasProps={canvasProps}
+                    setCanvasProps={setCanvasProps}
+                    nodes={nodes}
+                    groups={groups}
+                    links={links}
+                    updateNodes={updateNodes}
+                    setDragNode={setDragNode}
+                    autoSaveSettingInfo={handleAutoSaveSettingInfo} />
+            </div>
+        </div>
     );
 }

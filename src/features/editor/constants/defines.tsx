@@ -250,7 +250,7 @@ const COMMON_COMPONENT: Node[] = [
             />
         ),
         chart:{
-            type: 'base',
+            type: 'text',
             component: 'textComp',
         },
         style:{
@@ -323,7 +323,7 @@ const COMMON_COMPONENT: Node[] = [
         key: ComponentKey.line,
         name: "直线",
         width: 100,
-        height: 4,
+        height: 20,
         icon: (
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -343,9 +343,10 @@ const COMMON_COMPONENT: Node[] = [
                 color:'#52619b',
                 width:4,
                 x1:0,
-                y1:0,
+                y1:100,
                 x2:100,
-                y2:4
+                y2:0,
+                dashArray:'0,0'
             }
         },
         disabled: false
@@ -496,25 +497,4 @@ export enum OperateType {
     copy = "copy",
     delete = "delete"
 }
-
-export const defaultCanvasProps = {// 定义面板的默认属性
-    width: 1366,
-    height:768,
-    backgroundColor: "rgb(110, 134, 160)",
-    backgroundImage: null,
-    backgroundImageKey:null,
-    grid:{
-        show:false,
-        size: 10,
-        color: {
-            r: '241',
-            g: '112',
-            b: '19',
-            a: '1',
-        },
-        url:'',// 网格图片的路径
-    },
-    password:null
-}
-export const ThemeContext = React.createContext(defaultCanvasProps);
 

@@ -170,6 +170,11 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     notLine=false
     RESIZE_SELECTOR = ["left","right"]
   }
+  let isShowRotate = true;
+  if(chart?.type==='time'||chart?.type==='text'){// 文本和时间不显示旋转
+    isShowRotate=false
+    RESIZE_SELECTOR.pop()
+  }
 
 
   // 伸缩器

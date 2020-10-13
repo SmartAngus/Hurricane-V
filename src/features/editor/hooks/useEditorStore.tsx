@@ -6,6 +6,16 @@ import { useLocalStorage } from "./useLocalStorage";
 
 const { useState, useEffect } = React;
 
+const canvasConfig = {
+  backgroundColor: "#f0f2f5",
+  backgroundImage: null,
+  backgroundImageKey: null,
+  grid: {show: true, size: 10, color: "#662b2b",url:null},
+  height: 768,
+  password: null,
+  width: 1366,
+}
+
 export function useEditorStore() {
   const [editorData, setEditorData] = useState();
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -17,7 +27,7 @@ export function useEditorStore() {
   const [editorLocalData, setEditorLocalData] = useLocalStorage("editorData", {
     id: "editorData-local"
   });
-  const [canvasProps, setCanvasProps] = useState({})
+  const [canvasProps, setCanvasProps] = useState(canvasConfig)
   const [editorLocalHistoryData,setEditorLocalHistoryData]= useLocalStorage("editorDataHistory", {
     id: "editorData-history",
     currentIndex:0,
@@ -48,7 +58,7 @@ export function useEditorStore() {
     });
     setGroups(newGroups);
     setLinks(editorLocalData?.links ?? []);
-    setCanvasProps(editorLocalData?.canvasProps ?? {});
+    setCanvasProps(editorLocalData?.canvasProps ?? canvasConfig);
   }, [editorLocalData]);
 
   const updateNodes = (node: Node) => {

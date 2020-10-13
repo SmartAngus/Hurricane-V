@@ -1,11 +1,11 @@
-import React,{ useRef,useState,useContext,useEffect } from 'react'
+import React,{ useRef,useState,useContext,useEffect,useMemo } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Tabs, Collapse, Select, Input, Tooltip, Icon,InputNumber, Button,Radio, Checkbox } from 'antd'
 import * as _ from 'lodash'
 import ColorsPicker from './ColorsPicker'
 import "../components/NodePanel.scss";
 import "./RenderPropertySidebar.scss"
-import {Group, Link,Node, ThemeContext} from "../constants/defines";
+import {Group, Link,Node} from "../constants/defines";
 import preImage1 from '../../../assets/images/pre-image1.jpg'
 import preImage2 from '../../../assets/images/pre-image2.png'
 import preImage3 from '../../../assets/images/pre-image3.jpg'
@@ -67,21 +67,28 @@ const preImages = [
     {key:2,img:preImage2},
     {key:3,img:preImage3},
 ]
+// 箭头类型
+const arrowTypes =[
+    {key:0,value:'none',name:'无'},
+    {key:1,value:'typical',name:'typical'},
+    {key:2,value:'open',name:'open'},
+    {key:3,value:'block',name:'block'}
+]
+// 线段类型
+const lineTypes = [
+    {key:0,value:'0,0',name:'直线'},
+    {key:1,value:'5,5',name:'虚线'},
+    {key:1,value:'0,11',name:'虚线2'},
+]
 
 const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     const sidebarRef = useRef(null)
-    const defaultCanvasProps = useContext(ThemeContext)
     const {selectedNodes,nodes,groups,links,updateNodes,canvasProps,setCanvasProps,autoSaveSettingInfo} = props;
     const [isSelf,setIsSelf] = useState(false)
 
     const [gridSize,setGridSize]=useState(10)
     let [showGrid,setShowGrid]=useState(false)
-    let [gridColor,setGridColor]=useState({
-        r: '241',
-        g: '112',
-        b: '19',
-        a: '1',
-    })
+    let [gridColor,setGridColor]=useState("transparent")
 
     useEffect(()=>{
         if(canvasProps&&canvasProps.grid){
@@ -96,7 +103,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     let isCompSetting= false
     let isSetting = false
     // convert component to string useable in data-uri
-    let svgString = encodeURIComponent(renderToStaticMarkup(<GridBackgroundSVG strokeColor={getHexColor(gridColor)} />));
+    let svgString = encodeURIComponent(renderToStaticMarkup(<GridBackgroundSVG strokeColor={gridColor} />));
     //svgString = btoa(svgString);
     // setCanvasProps(defaultCanvasProps)
 
@@ -165,7 +172,6 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     }
     // 是否显示网格
     const handleChangeGrid=(e)=>{
-        console.log(`handleChangeGrid`,canvasProps)
         if(e.target.checked){
             setShowGrid(true)
             canvasProps.grid.show=true
@@ -182,12 +188,10 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     }
     // 网格大小改变
     const handleChangeGridSize=(value)=>{
-        console.log("handleChangeGridSize==",value,showGrid)
         setGridSize(value)
         if(showGrid){
-            console.log(getHexColor(gridColor))
             let svgString = encodeURIComponent(renderToStaticMarkup(
-                <GridBackgroundSVG height={value*20} width={value*20} strokeColor={getHexColor(gridColor)} />)
+                <GridBackgroundSVG height={value*20} width={value*20} strokeColor={gridColor} />)
             );
             canvasProps.grid.url = svgString
             canvasProps.grid.size=value
@@ -197,7 +201,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     }
     // 画布背景颜色改变
     const handleSetBgColor = (color)=>{
-        canvasProps.backgroundColor=getHexColor(color);
+        canvasProps.backgroundColor=color;
         setCanvasProps(canvasProps)
         autoSaveSettingInfo(canvasProps,nodes,groups,links)
     }
@@ -206,7 +210,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         // 深度复制，防止改变一个颜色而使整个颜色都改变了
         const newNode = _.cloneDeep(node)
         if(newNode.style) {
-            newNode.style.borderColor = getHexColor(color);
+            newNode.style.borderColor = color;
             updateNodes(newNode)
         }
     }
@@ -214,7 +218,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     const handleSetBoxBgColor = (color)=>{
         const newNode = _.cloneDeep(node)
         if(newNode.style){
-            newNode.style.backgroundColor = getHexColor(color);
+            newNode.style.backgroundColor = color;
             updateNodes(newNode)
         }
     }
@@ -231,7 +235,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         setGridColor(color)
         canvasProps.grid.color=color
         let svgString = encodeURIComponent(renderToStaticMarkup(
-            <GridBackgroundSVG height={gridSize*20} width={gridSize*20} strokeColor={getHexColor(gridColor)} />)
+            <GridBackgroundSVG height={gridSize*20} width={gridSize*20} strokeColor={gridColor} />)
         );
         canvasProps.grid.url = svgString
         setCanvasProps(canvasProps)
@@ -257,7 +261,7 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     const handleSetTextFontColor = (fontColor)=>{
         const newNode = _.cloneDeep(node)
         if(newNode.style) {
-            newNode.style.color = getHexColor(fontColor);
+            newNode.style.color = fontColor;
             updateNodes(newNode)
         }
     }
@@ -300,6 +304,30 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
         const newNode = _.cloneDeep(node)
         if(newNode.chart) {
             newNode.chart.format.t.fm = value;
+            updateNodes(newNode)
+        }
+    }
+    // 设置线段类型
+    const handleSetLineDashArray = (value)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.chart) {
+            newNode.chart.stroke.dashArray = value;
+            updateNodes(newNode)
+        }
+    }
+    // 设置线段颜色
+    const handleSetLineStrokeColor = (color)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.chart) {
+            newNode.chart.stroke.color = color;
+            updateNodes(newNode)
+        }
+    }
+    // 设置线段宽度
+    const handleSetLineStrokeWidth = (value)=>{
+        const newNode = _.cloneDeep(node)
+        if(newNode.chart) {
+            newNode.chart.stroke.width = value;
             updateNodes(newNode)
         }
     }
@@ -426,48 +454,44 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
             )
     }
     // 渲染普通组件的外观属性
-    const renderCommonOutward=()=>{
-        return (<div className="components-box">
-            <div className="components-box-inner">
-                <label>填充</label>
-                <ColorsPicker
-                    defaultColor={node.style?.backgroundColor}
-                    onSetColor={handleSetBoxBgColor}/>
-            </div>
-            <div className="components-box-inner">
-                <label>边框</label>
-                <ColorsPicker
-                    defaultColor={node.style?.borderColor}
-                    onSetColor={handleSetBoxBorderColor}/>
-                <InputNumber
-                    value={node.style?.borderWidth}
-                    min={0}
-                    max={4}
-                    formatter={value => `${value}px`}
-                    parser={value => value.replace('px', '')}
-                    onChange={handleSetBoxBorderWidth}
-                />
-            </div>
-        </div>)
-    }
-    // 箭头类型
-    const arrowTypes =[
-        {key:0,value:'none',name:'无'},
-        {key:1,value:'typical',name:'typical'},
-        {key:2,value:'open',name:'open'},
-        {key:3,value:'block',name:'block'}
-    ]
+    const renderCommonOutward=useMemo(()=>{
+        return ()=>{
+            return (<div className="components-box">
+                <div className="components-box-inner">
+                    <label>填充</label>
+                    <ColorsPicker
+                        defaultColor={node?.style?.backgroundColor}
+                        onSetColor={handleSetBoxBgColor}/>
+                </div>
+                <div className="components-box-inner">
+                    <label>边框</label>
+                    <ColorsPicker
+                        defaultColor={node?.style?.borderColor}
+                        onSetColor={handleSetBoxBorderColor}/>
+                    <InputNumber
+                        value={node?.style?.borderWidth}
+                        min={0}
+                        max={4}
+                        formatter={value => `${value}px`}
+                        parser={value => value.replace('px', '')}
+                        onChange={handleSetBoxBorderWidth}
+                    />
+                </div>
+            </div>)
+        }
+    },[node?.style])
+
     // 渲染直线外观属性
     const renderLineOutward=()=>{
         return (
             <div className="components-box">
                 <div className="components-box-inner">
                     <label>线段类型</label>
-                    <Select defaultValue={node.style?.fontFamily}
+                    <Select defaultValue={node.chart?.stroke.dashArray}
                             style={{ width: 100,marginRight:20 }}
-                            onChange={handleSetTextFontFamily}>
-                        {fontFamilies.map((item,key)=>{
-                            return <Option key={key} value={item.name}>{item.name}</Option>
+                            onChange={handleSetLineDashArray}>
+                        {lineTypes.map((item,key)=>{
+                            return <Option key={key} value={item.value}>{item.name}</Option>
                         })}
                     </Select>
                 </div>
@@ -494,17 +518,19 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                 <div className="components-box-inner">
                     <label>线段颜色</label>
                     <ColorsPicker
-                        defaultColor={node.style?.borderColor}
-                        onSetColor={handleSetBoxBorderColor}/>
+                        defaultColor={node.chart?.stroke.color}
+                        onSetColor={handleSetLineStrokeColor}/>
                 </div>
                 <div className="components-box-inner">
                     <label>线段宽度</label>
                     <InputNumber
                         style={{width:110}}
-                        value={node&&node.width}
-                        formatter={value => `W ${value} px`}
+                        value={node&&node.chart?.stroke?.width}
+                        formatter={value => `${value} px`}
+                        min={0}
+                        max={10}
                         parser={parserInputValue}
-                        onChange={onInputSizeWChange}
+                        onChange={handleSetLineStrokeWidth}
                     />
                 </div>
             </div>

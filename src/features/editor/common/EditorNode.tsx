@@ -207,13 +207,13 @@ export function EditorNode(props: EditorNodeProps) {
 
   // 动态渲染组件
   const newNode = _.cloneDeep(currentNode)
-  delete newNode.ref;
+   delete newNode.ref;
   const dynamicLoadComp=useMemo(()=>{
     const OtherComponent = loadable(() => import(`../components/charts/${currentNode.chart.component}`));
     return (
         <OtherComponent node={newNode} updateNodes={updateNodes}/>
     )
-  },[currentNode.chart?.format,currentNode.chart?.stroke])// 只有时间控件和直线才会重新加载
+  },[currentNode.chart?.format,currentNode.chart?.stroke,currentNode.width])// 只有时间控件和直线才会重新加载
 
   return (
     <NodeContainer

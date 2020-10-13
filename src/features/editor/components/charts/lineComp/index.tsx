@@ -1,7 +1,7 @@
 /**
  * 定义直线组件组件
  */
-import React,{useRef,useLayoutEffect,useMemo} from "react"
+import React,{useRef,useEffect,useMemo} from "react"
 import {Node} from "../../../constants/defines";
 import './style.scss'
 import { SVG ,Rect,Line,Marker,Path} from '@svgdotjs/svg.js'
@@ -16,38 +16,53 @@ const LineComp:React.FC<TextCompProps> = (props,ref) =>{
     const svgContainerRef = useRef()
     console.log("LineComp",node)
 
-    useLayoutEffect(()=>{
+    useEffect(()=>{
         console.log("重复运行了吗")
         const draw = SVG(svgContainerRef.current)
         console.log(draw)
         //new Rect().size(100, 100).addTo(draw)
         const line = new Line({
-                x1:node.chart.stroke.x1,
-                y1:node.chart.stroke.y1,
-                x2:node.chart.stroke.x2,
-                y2:node.chart.stroke.y2
+                x1:0,
+                y1:node.height/2,
+                x2:node.width+200,
+                y2:node.height/2,
             })
             .addClass("dotted")
             .stroke({
-                color:'red',
-                width:4,
-                dasharray:'0,11'
+                color:node.chart.stroke.color,
+                width:node.chart.stroke.width,
+                dasharray:node.chart.stroke.dashArray
             });
+
+
+
         line.addTo(draw)
+        var click = function() {
+            console.log(222)
+            this.fill({ color: '#f06' })
+        }
+
+        line.on('click', click)
+
 
         line.marker('end', 20, 20, function(add) {
-            add.path('M2 2 L12 12 L2 12 L2,2 Z');
+            add.path('M 7.76 0 L 9.76 4 L 1.76 0 L 9.76 6 Z');
 
             this.fill("green")
         })
-        line.marker('start', 20, 20, function(add) {
-            add.path('M2 2 L12 12 L2 12 L2,2 Z');
 
-            this.fill("green")
-        })
+
+        // line.marker('start', 20, 20, function(add) {
+        //     add.path('M2 2 L12 12 L2 12 L2,2 Z');
+        //
+        //     this.fill("green")
+        // })
         const jt_1 = new Path()
 
     },[])
+    const handClick=()=>{
+        console.log("111")
+    }
     return (
         <div
         style={{
@@ -61,6 +76,7 @@ const LineComp:React.FC<TextCompProps> = (props,ref) =>{
                 version="1.1"
                 width={node.width}
                 height={node.height}
+                onClick={handClick}
             >
                 <defs></defs>
             </svg>

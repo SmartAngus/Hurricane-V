@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import {BaseCompStyle, EChart,Stroke} from "../constants/defines";
 import * as _ from 'lodash'
+import { SVG ,Rect,Line,Marker,Path} from '@svgdotjs/svg.js'
+
 
 class NodeInfo {
   width: number;
@@ -73,8 +75,6 @@ const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: Node
           // 线条开始拖动，确定初始坐标点的位置
           let origin = [e.pageX-originMouseX,e.pageY-originMouseY]
 
-          console.log("stroke==",nodeChartStroke)
-
 
           if (currentResizer.classList.contains('bottom-right')) {
             newWidth = originWidth + (e.pageX - originMouseX);
@@ -106,16 +106,31 @@ const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: Node
               setNodeTop(nodeTop + (e.pageY - originMouseY));
             }
           } else if(currentResizer.classList.contains('left')){
-            console.log("resile left",x,y)
-            console.log(origin)
+            newWidth = originWidth - (e.pageX - originMouseX);
+            newHeight = originHeight + (e.pageY - originMouseY);
+            if (newWidth > minSize) {
+              setNodeWidth(newWidth);
+              setNodeLeft(nodeLeft + (e.pageX - originMouseX));
+            }
+            // if (newHeight > minSize) {
+            //   setNodeHeight(newHeight);
+            // }
+
           }else if(currentResizer.classList.contains('right')){
             // 拖动直线右边的锚点
-            console.log("resile right",x,y)
-            console.log(origin)
-            const newStroke =  _.cloneDeep(nodeChartStroke)
-            newStroke.y2=origin[1]
-            setNodeChartStroke(newStroke)
-            console.log(newStroke)
+            // 更新stroke
+
+            newWidth = originWidth + (e.pageX - originMouseX);
+            newHeight = originHeight - (e.pageY - originMouseY);
+            if (newWidth > minSize) {
+              setNodeWidth(newWidth);
+            }
+            // if (newHeight > minSize) {
+            //   setNodeHeight(newHeight);
+            //   setNodeTop(nodeTop + (e.pageY - originMouseY));
+            // }
+
+
           } else {
             newWidth = originWidth - (e.pageX - originMouseX);
             newHeight = originHeight - (e.pageY - originMouseY);
