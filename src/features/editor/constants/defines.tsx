@@ -67,12 +67,13 @@ export class Stroke {// 直线控件有的属性
     color?:string;
     width?:number;
     dashArray?:string;// 线条类型
-    startMarker?:string;// 左边线条类型
-    endMarker?:string;// 左边线条类型
+    startMarker?:string;// 左边线条箭头类型
+    endMarker?:string;// 左边线条箭头类型
     x1?:number;
     y1?:number;
     x2?:number;
     y2?:number;
+    transformOrigin?:'left'|'center'|'right'
 
 }
 // 定义echarts表
@@ -346,9 +347,12 @@ const COMMON_COMPONENT: Node[] = [
                 y1:100,
                 x2:100,
                 y2:0,
-                dashArray:'0,0'
+                dashArray:'0,0',
+                transformOrigin:'left',
+                endMarker:'none'
             }
         },
+        rotate:0,
         disabled: false
     },
     /** 时间 */

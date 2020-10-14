@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import {BaseCompStyle, EChart,Stroke} from "../constants/defines";
-import * as _ from 'lodash'
-import { SVG ,Rect,Line,Marker,Path} from '@svgdotjs/svg.js'
+import {getRotateAngle,distance} from '../utils/calc'
 
 
 class NodeInfo {
@@ -11,16 +10,18 @@ class NodeInfo {
   y: number;
   chart?:EChart;
   zIndex?:number;
-  rotate?:number;
+  lineRotate?:number;
   style?:BaseCompStyle;
-  stroke?:Stroke
+  stroke?:Stroke;
+  rotate?:number;
 }
 
-const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: NodeInfo): NodeInfo => {
+const useResize = (isResize: boolean, { width, height, x, y,rotate,lineRotate,...otherInfo }: NodeInfo): NodeInfo => {
   const [nodeWidth, setNodeWidth] = useState(width);
   const [nodeHeight, setNodeHeight] = useState(height);
   const [nodeLeft, setNodeLeft] = useState(x);
   const [nodeTop, setNodeTop] = useState(y);
+  const [nodeRotate,setNodeRotate] = useState(lineRotate)
   const [nodeChartStroke,setNodeChartStroke]=useState(otherInfo?.chart?.stroke);
 
 
@@ -43,6 +44,9 @@ const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: Node
     // 鼠标拖拽的初始位置
     let originMouseX = 0;
     let originMouseY = 0;
+    // 旋转中心位置
+    let originCenterX = 0;
+    let originCenterY = 0;
 
     if (isResize) {
       for (let i = 0; i < resizers.length; i++) {
@@ -64,7 +68,14 @@ const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: Node
           originMouseX = (e as any).pageX;
           originMouseY = (e as any).pageY;
 
-          // 变更type
+          // 计算弧度=角度*pi/180
+          if(rotate==undefined) rotate=0;
+          const h = rotate*Math.PI/180
+          const y = width*Math.sin(h);
+          const x = width*Math.cos(h)
+          originCenterX = originMouseX - x
+          originCenterY = originMouseY - y
+              // 变更type
           window.addEventListener('mousemove', resize);
           window.addEventListener('mouseup', stopResize);
         });
@@ -106,30 +117,24 @@ const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: Node
               setNodeTop(nodeTop + (e.pageY - originMouseY));
             }
           } else if(currentResizer.classList.contains('left')){
+            // 暂时没做旋转处理
             newWidth = originWidth - (e.pageX - originMouseX);
-            newHeight = originHeight + (e.pageY - originMouseY);
             if (newWidth > minSize) {
               setNodeWidth(newWidth);
               setNodeLeft(nodeLeft + (e.pageX - originMouseX));
             }
-            // if (newHeight > minSize) {
-            //   setNodeHeight(newHeight);
-            // }
-
           }else if(currentResizer.classList.contains('right')){
-            // 拖动直线右边的锚点
-            // 更新stroke
-
+            // 鼠标移动距离
+            const mouseMoveY = e.pageY - originMouseY
             newWidth = originWidth + (e.pageX - originMouseX);
-            newHeight = originHeight - (e.pageY - originMouseY);
-            if (newWidth > minSize) {
-              setNodeWidth(newWidth);
-            }
-            // if (newHeight > minSize) {
-            //   setNodeHeight(newHeight);
-            //   setNodeTop(nodeTop + (e.pageY - originMouseY));
-            // }
-
+            const dotDistance = distance({x:originCenterX,y:originCenterY},{x:e.pageX,y:e.pageY})
+            setNodeWidth(Math.abs(dotDistance));
+            nodeChartStroke.transformOrigin="left"
+            // 旋转角度
+            let rotateDeg = Math.atan2(mouseMoveY,newWidth)
+            const orotate = rotate||0
+            rotateDeg = rotateDeg*180/Math.PI+orotate
+            setNodeRotate(rotateDeg)
 
           } else {
             newWidth = originWidth - (e.pageX - originMouseX);
@@ -150,13 +155,14 @@ const useResize = (isResize: boolean, { width, height, x, y,...otherInfo }: Node
         };
       }
     }
-  }, [isResize, nodeWidth, nodeHeight, setNodeHeight, setNodeWidth, nodeTop, nodeLeft, setNodeTop, setNodeLeft,nodeChartStroke]);
+  }, [isResize, nodeWidth, nodeHeight,nodeRotate, setNodeHeight, setNodeWidth, nodeTop, nodeLeft, setNodeTop, setNodeLeft,nodeChartStroke]);
 
   return {
     width: nodeWidth,
     height: nodeHeight,
     x: nodeLeft,
     y: nodeTop,
+    lineRotate: nodeRotate,
     stroke: nodeChartStroke
   };
 };

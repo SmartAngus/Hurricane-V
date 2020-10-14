@@ -482,8 +482,8 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
     },[node?.style])
 
     // 渲染直线外观属性
-    const renderLineOutward=()=>{
-        return (
+    const renderLineOutward=useMemo(()=>{
+        return ()=>{return (
             <div className="components-box">
                 <div className="components-box-inner">
                     <label>线段类型</label>
@@ -495,19 +495,19 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                         })}
                     </Select>
                 </div>
+                {/*<div className="components-box-inner">*/}
+                {/*    <label>首端箭头</label>*/}
+                {/*    <Select defaultValue={node.style?.fontFamily}*/}
+                {/*            style={{ width: 100,marginRight:20 }}*/}
+                {/*            onChange={handleSetTextFontFamily}>*/}
+                {/*        {arrowTypes.map((item,key)=>{*/}
+                {/*            return <Option key={key} value={item.value}>{item.name}</Option>*/}
+                {/*        })}*/}
+                {/*    </Select>*/}
+                {/*</div>*/}
                 <div className="components-box-inner">
-                    <label>首端箭头</label>
-                    <Select defaultValue={node.style?.fontFamily}
-                            style={{ width: 100,marginRight:20 }}
-                            onChange={handleSetTextFontFamily}>
-                        {arrowTypes.map((item,key)=>{
-                            return <Option key={key} value={item.value}>{item.name}</Option>
-                        })}
-                    </Select>
-                </div>
-                <div className="components-box-inner">
-                    <label>末端箭头</label>
-                    <Select defaultValue={node.style?.fontFamily}
+                    <label>箭头</label>
+                    <Select defaultValue={node.chart?.stroke.endMarker}
                             style={{ width: 100,marginRight:20 }}
                             onChange={handleSetTextFontFamily}>
                         {arrowTypes.map((item,key)=>{
@@ -534,8 +534,8 @@ const RenderPropertySidebar = React.forwardRef((props:OptionsProperty, ref)=>{
                     />
                 </div>
             </div>
-        )
-    }
+        )}
+    },[node?.chart?.stroke])
     // 渲染组件属性
     const renderCompSetting = ()=>{
         return (

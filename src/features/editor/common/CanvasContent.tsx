@@ -538,14 +538,13 @@ export default class CanvasContent extends React.Component<
     event.preventDefault();
     event.stopPropagation();
 
-    const { setNodes, nodes } = this.props;
+    const { setNodes, nodes,selectedNodes } = this.props;
 
     const { k, x, y } = this.props.currTrans;
 
     const { offsetTop, offsetLeft } = getOffset(this.container.current);
     const screenX = event.clientX - offsetLeft;
     const screenY = event.clientY - offsetTop;
-
     // 判断当前节点平移后是否溢出画布
     // const isOver = this.checkNodeIsOverScreen(dragNode, screenX, screenY);
 
@@ -584,7 +583,6 @@ export default class CanvasContent extends React.Component<
   /** 放开节点 */
   onDragNodeMouseUp = (event: any) => {
     event.stopPropagation();
-    console.log("onDragNodeMouseUp")
     const { groups, updateNodes, updateGroups,onSaveHistory } = this.props;
 
     const { dragNode } = this.state;
@@ -785,9 +783,6 @@ export default class CanvasContent extends React.Component<
         id: uuid.v4(),
         ref: React.createRef()
       };
-      console.log("newNode",newNode)
-      console.log(nodes)
-
       setNodes([...nodes, newNode]);
       nodes.push(newNode)
       onSaveHistory()
@@ -1049,6 +1044,7 @@ export default class CanvasContent extends React.Component<
     height: number,
     x: number,
     y: number,
+    lineRotate: number,
     stroke:Stroke
   ) => {
     const { updateNodes } = this.props;
@@ -1058,6 +1054,7 @@ export default class CanvasContent extends React.Component<
       height,
       x,
       y,
+      rotate:lineRotate
     };
     // 将直线改变的坐标更新上去
     if(newNode.chart?.stroke){

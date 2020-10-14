@@ -58,7 +58,7 @@ class EditorNodeProps {
   nodeRef: any;
 
   /** 改变节点大小 */
-  onResize?: (width: number, height: number, x: number, y: number,stroke:Stroke) => void;
+  onResize?: (width: number, height: number, x: number, y: number,rotate:number,stroke:Stroke) => void;
   /** 改变节点图层 */
   onChangeZIndex?:(zIndex: number)=>void;
   updateNodes?:(node:Node)=>void;
@@ -226,6 +226,7 @@ export function EditorNode(props: EditorNodeProps) {
       style={currentNode.style}
       rotate={currentNode.rotate}
       zIndex={currentNode.zIndex}
+      type = {currentNode.key}
       currTrans={currTrans}
       ref={nodeRef}
       isSelected={isSelected}

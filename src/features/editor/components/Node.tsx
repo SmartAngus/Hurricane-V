@@ -17,6 +17,8 @@ class NodeProps {
 
   /** 节点横坐标 */
   x: number;
+  // 节点类型
+  type:string;
 
   /** 节点纵坐标 */
   y: number;
@@ -45,7 +47,7 @@ class NodeProps {
   children?: React.ReactNode;
 
   /** 改变节点大小 */
-  onResize?: (width: number, height: number, x: number, y: number,stroke:Stroke) => void;
+  onResize?: (width: number, height: number, x: number, y: number,lineRoate:number,stroke:Stroke) => void;
 
   /** chart 信息 */
   chart?:EChart;
@@ -88,9 +90,10 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     height,
     isSelected,
     onResize,
+    rotate,
     onChangeZIndex,
     zIndex,
-    rotate,
+    type,
     style,
   } = props;
 
@@ -103,17 +106,19 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
     height: resizeHeight,
     x: resizeX,
     y: resizeY,
-    stroke
+    lineRotate,
+    stroke,
   } = useResize(isSelected, {
     width,
     height,
     x,
     y,
     chart,
-    zIndex,
     rotate,
+    zIndex,
     style,
   });
+  const rotateDeg = lineRotate || rotate
 
   const handleContextMenu = (event: React.MouseEvent<any>) => {
     event.preventDefault();
@@ -226,9 +231,8 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
   );
 
   useEffect(() => {
-    onResize(resizeWidth, resizeHeight, resizeX, resizeY,stroke);
-
-  }, [resizeWidth, resizeHeight, resizeX, resizeY,stroke]);
+    onResize(resizeWidth, resizeHeight, resizeX, resizeY,rotateDeg,stroke);
+  }, [resizeWidth, resizeHeight, resizeX, resizeY,rotateDeg,stroke]);
   useEffect(()=>{
     onChangeZIndex(zIndex)
   },[zIndex])
@@ -242,7 +246,8 @@ const Node = React.forwardRef((props: NodeProps, ref: any) => {
         top: y,
         width,
         height,
-        transform: `rotate(${rotate}deg)`
+        transform: `rotate(${rotateDeg}deg)`,
+        transformOrigin:type=='line'?`${chart.stroke.transformOrigin}`:`center`
       }}
       ref={ref}
       onClick={onClick}
